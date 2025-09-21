@@ -1,0 +1,83 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ARM Template for deploying Azure Workbook - Sample Dashboard WPNinjas 2025"
+  },
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Sample Dashboard WPNinjas 2025",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc."
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "azure monitor",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {
+        "Environment": "Demo",
+        "Project": "Azure-Workbook-Deployment-Demo",
+        "CreatedBy": "ARM Template"
+      },
+      "metadata": {
+        "description": "Tags to apply to the workbook resource"
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "microsoft.insights/workbooks",
+      "name": "[parameters('workbookId')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2022-04-01",
+      "kind": "shared",
+      "tags": "[parameters('resourceTags')]",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":9,\"content\":{\"version\":\"KqlParameterItem/1.0\",\"parameters\":[{\"id\":\"b52f0933-be39-49be-82e1-7d37262f3670\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"OSSelection\",\"label\":\"Operating System\",\"type\":2,\"multiSelect\":true,\"quote\":\"'\",\"delimiter\":\",\",\"query\":\"IntuneDevices | distinct OS\",\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"]},\"defaultValue\":\"value::all\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"}],\"style\":\"pills\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},\"name\":\"parameters\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"IntuneDevices | where OS in ({OSSelection}) | summarize UniqueDeviceCount = dcount(DeviceId)\",\"size\":4,\"title\":\"Active Devices Count\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"stat\"},\"name\":\"deviceCount\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"IntuneDevices | where OS in ({OSSelection}) | summarize TotalDevices = count(), CompliantDevices = countif(CompliantState == 'Compliant') | extend CompliancePercentage = iff(TotalDevices == 0, 0.0, todouble(CompliantDevices) / TotalDevices * 100) | project CompliancePercentage\",\"size\":4,\"title\":\"Compliance Percentage\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"stat\"},\"name\":\"compliance\"}],\"fallbackResourceIds\":[\"azure monitor\"]}",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+    },
+    "workbookName": {
+      "type": "string", 
+      "value": "[parameters('workbookDisplayName')]"
+    }
+  }
+}
