@@ -59,8 +59,11 @@ jobs:
           az deployment group validate \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --template-file demo-armtemplate-1.json \
+            --parameters workbookId="$(uuidgen)" \
             --parameters workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD" \
-            --parameters location="${{ env.AZURE_LOCATION }}"
+            --parameters location="${{ env.AZURE_LOCATION }}" \
+            --parameters templateName="A Workbook Template" \
+            --parameters templateCategory="Deployed Templates"
 
   deploy:
     runs-on: ubuntu-latest
@@ -88,14 +91,30 @@ jobs:
 
       - name: Create deployment
         run: |
-          az deployment group create \
+          echo "🚀 Starting ARM template deployment..."
+          
+          DEPLOYMENT_OUTPUT=$(az deployment group create \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --template-file demo-armtemplate-1.json \
             --parameters workbookId="$(uuidgen)" \
             --parameters workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD" \
             --parameters location="${{ env.AZURE_LOCATION }}" \
+            --parameters templateName="A Workbook Template" \
+            --parameters templateCategory="Deployed Templates" \
             --parameters resourceTags='{"Environment":"Demo","Project":"Azure-Workbook-Deployment-Demo","CreatedBy":"GitHub-Actions","DeploymentId":"${{ github.run_number }}","CommitSha":"${{ github.sha }}"}' \
-            --name "workbook-deployment-${{ github.run_number }}"
+            --name "workbook-deployment-${{ github.run_number }}" \
+            --output json)
+          
+          echo "✅ Deployment completed!"
+          echo "📊 Deployment details:"
+          echo "$DEPLOYMENT_OUTPUT" | jq -r '.properties.provisioningState'
+          
+          # Check if deployment was successful
+          PROVISIONING_STATE=$(echo "$DEPLOYMENT_OUTPUT" | jq -r '.properties.provisioningState')
+          if [ "$PROVISIONING_STATE" != "Succeeded" ]; then
+            echo "❌ Deployment failed with state: $PROVISIONING_STATE"
+            exit 1
+          fi
 
       - name: Output Deployment Information
         run: |
@@ -124,24 +143,48 @@ jobs:
       - name: Verify Workbook Template Deployment
         run: |
           echo "Checking if workbook template was deployed successfully..."
-          TEMPLATE_COUNT=$(az resource list \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --resource-type "microsoft.insights/workbooktemplates" \
-            --query "length([?contains(name, 'workbook')])" \
-            --output tsv)
-
-          if [ "$TEMPLATE_COUNT" -gt 0 ]; then
-            echo "✅ Workbook template deployment verified successfully!"
-            echo "Found $TEMPLATE_COUNT workbook template(s) in the resource group."
-          else
-            echo "❌ Workbook template verification failed!"
-            echo "No workbook templates found in the resource group."
-            exit 1
-          fi
-
-      - name: List Deployed Resources
-        run: |
-          echo "📋 Resources in Resource Group:"
+          
+          # First, list all resources to see what was actually deployed
+          echo "📋 All resources in Resource Group:"
           az resource list \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --output table
+          
+          echo ""
+          echo "🔍 Looking specifically for workbook templates..."
+          
+          # Check for workbook templates with more flexible criteria
+          TEMPLATE_COUNT=$(az resource list \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --resource-type "microsoft.insights/workbooktemplates" \
+            --query "length([])" \
+            --output tsv)
+
+          echo "Found $TEMPLATE_COUNT workbook template(s) in the resource group."
+
+          if [ "$TEMPLATE_COUNT" -gt 0 ]; then
+            echo "✅ Workbook template deployment verified successfully!"
+            
+            # Show details of the deployed templates
+            echo "📝 Workbook template details:"
+            az resource list \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --resource-type "microsoft.insights/workbooktemplates" \
+              --output table
+          else
+            echo "❌ Workbook template verification failed!"
+            echo "No workbook templates found in the resource group."
+            
+            # Check if there are any other resources that might indicate the deployment worked
+            ALL_RESOURCES=$(az resource list \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --query "length([])" \
+              --output tsv)
+            
+            if [ "$ALL_RESOURCES" -gt 0 ]; then
+              echo "⚠️ However, found $ALL_RESOURCES other resource(s) in the group. The deployment may have succeeded with a different resource type."
+              echo "This might indicate an issue with the template or resource type specification."
+            fi
+            
+            exit 1
+          fi
