@@ -32,149 +32,23 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
 
-    - name: Install jq
+    - name: Install PowerShell
       run: |
         sudo apt-get update
-        sudo apt-get install -y jq
+        sudo apt-get install -y powershell
 
-    - name: Read and Process Workbook Content
-      id: process-workbook
+    - name: Generate ARM Template using PowerShell
       run: |
-        echo "🔧 Processing workbook content..."
-        
-        # Validate source workbook JSON
-        if ! jq empty demo-workbook-1.json; then
-          echo "❌ Source workbook JSON is invalid"
-          exit 1
-        fi
-        
-        # Read and minify the workbook content
-        WORKBOOK_CONTENT=$(jq -c . demo-workbook-1.json)
-        
-        # Calculate content hash for change detection
-        CONTENT_HASH=$(echo "$WORKBOOK_CONTENT" | sha256sum | cut -d' ' -f1)
-        
-        echo "📄 Workbook content size: $(echo "$WORKBOOK_CONTENT" | wc -c) characters"
-        echo "🔒 Content hash: $CONTENT_HASH"
-        
-        # Save content for next step
-        echo "$WORKBOOK_CONTENT" > workbook-content.json
-        echo "content_hash=$CONTENT_HASH" >> $GITHUB_OUTPUT
-
-    - name: Generate ARM Template
-      id: generate-template
-      run: |
-        echo "🏗️ Generating ARM template..."
-        
-        # Read the processed workbook content
-        WORKBOOK_CONTENT=$(cat workbook-content.json)
-        
-        # Escape for JSON embedding
-        ESCAPED_CONTENT=$(echo "$WORKBOOK_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
-        
-        # Generate timestamp
-        TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-        
-        # Create the ARM template
-        cat > demo-armtemplate-1.json << EOF
-        {
-          "\$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "description": "ARM Template for deploying Azure Workbook - Sample Dashboard WPNinjas 2025",
-            "lastUpdated": "$TIMESTAMP",
-            "workbookContentHash": "${{ steps.process-workbook.outputs.content_hash }}",
-            "generatedBy": "GitHub Actions - Combine Workbook Pipeline",
-            "sourceCommit": "${{ github.sha }}"
-          },
-          "parameters": {
-            "workbookDisplayName": {
-              "type": "string",
-              "defaultValue": "Sample Dashboard WPNinjas 2025",
-              "metadata": {
-                "description": "The friendly name for the workbook that is used in the Gallery or Saved List."
-              }
-            },
-            "workbookType": {
-              "type": "string",
-              "defaultValue": "workbook",
-              "metadata": {
-                "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc."
-              }
-            },
-            "workbookSourceId": {
-              "type": "string",
-              "defaultValue": "azure monitor",
-              "metadata": {
-                "description": "The id of resource instance to which the workbook will be associated"
-              }
-            },
-            "workbookId": {
-              "type": "string",
-              "defaultValue": "[newGuid()]",
-              "metadata": {
-                "description": "The unique guid for this workbook instance"
-              }
-            },
-            "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]",
-              "metadata": {
-                "description": "Location for all resources."
-              }
-            },
-            "resourceTags": {
-              "type": "object",
-              "defaultValue": {
-                "Environment": "Demo",
-                "Project": "Azure-Workbook-Deployment-Demo",
-                "CreatedBy": "ARM Template"
-              },
-              "metadata": {
-                "description": "Tags to apply to the workbook resource"
-              }
-            }
-          },
-          "variables": {
-            "workbookContentFromFile": "$ESCAPED_CONTENT"
-          },
-          "resources": [
-            {
-              "type": "microsoft.insights/workbooks",
-              "name": "[parameters('workbookId')]",
-              "location": "[parameters('location')]",
-              "apiVersion": "2022-04-01",
-              "kind": "shared",
-              "tags": "[parameters('resourceTags')]",
-              "properties": {
-                "displayName": "[parameters('workbookDisplayName')]",
-                "serializedData": "[variables('workbookContentFromFile')]",
-                "version": "1.0",
-                "sourceId": "[parameters('workbookSourceId')]",
-                "category": "[parameters('workbookType')]"
-              }
-            }
-          ],
-          "outputs": {
-            "workbookId": {
-              "type": "string",
-              "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
-            },
-            "workbookName": {
-              "type": "string", 
-              "value": "[parameters('workbookDisplayName')]"
-            },
-            "workbookContentHash": {
-              "type": "string",
-              "value": "${{ steps.process-workbook.outputs.content_hash }}"
-            }
-          }
-        }
-        EOF
+        echo "🏗️ Generating ARM template using PowerShell script..."
+        pwsh -File combine-workbook.ps1
+        echo "✅ ARM template generated successfully"
 
     - name: Validate Generated Template
       run: |
         echo "🔍 Validating generated ARM template..."
+        
+        # Install jq if not available
+        sudo apt-get install -y jq
         
         # Validate JSON syntax
         if ! jq empty demo-armtemplate-1.json; then
@@ -185,15 +59,30 @@ jobs:
         # Validate required ARM template sections
         REQUIRED_SECTIONS=('$schema' 'contentVersion' 'parameters' 'variables' 'resources' 'outputs')
         for section in "${REQUIRED_SECTIONS[@]}"; do
-          if ! jq -e ".\$section" demo-armtemplate-1.json > /dev/null; then
-            echo "❌ Missing required ARM template section: $section"
-            exit 1
+          if [ "$section" = '$schema' ]; then
+            # Special handling for $schema due to jq syntax
+            if ! jq -e '.["$schema"]' demo-armtemplate-1.json > /dev/null; then
+              echo "❌ Missing required ARM template section: $section"
+              exit 1
+            fi
+          else
+            if ! jq -e ".$section" demo-armtemplate-1.json > /dev/null; then
+              echo "❌ Missing required ARM template section: $section"
+              exit 1
+            fi
           fi
         done
         
-        # Validate workbook content is embedded
-        if ! jq -e '.variables.workbookContentFromFile | length > 10' demo-armtemplate-1.json > /dev/null; then
-          echo "❌ Workbook content appears to be missing or too short"
+        # Validate workbook template content is embedded
+        if ! jq -e '.resources[0].properties.templateData | length > 10' demo-armtemplate-1.json > /dev/null; then
+          echo "❌ Workbook template content appears to be missing or too short"
+          exit 1
+        fi
+        
+        # Validate it's a workbook template resource
+        RESOURCE_TYPE=$(jq -r '.resources[0].type' demo-armtemplate-1.json)
+        if [ "$RESOURCE_TYPE" != "microsoft.insights/workbooktemplates" ]; then
+          echo "❌ Expected workbook template resource type, found: $RESOURCE_TYPE"
           exit 1
         fi
         
@@ -218,93 +107,45 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
         else
-          echo "🔄 Changes detected in ARM template"
+          echo "📝 Changes detected in ARM template"
           echo "has_changes=true" >> $GITHUB_OUTPUT
-          
-          echo "📝 Change summary:"
-          git diff --stat demo-armtemplate-1.json
         fi
 
-    - name: Create Pull Request
-      if: steps.check-changes.outputs.has_changes == 'true' && github.event_name == 'push'
-      uses: peter-evans/create-pull-request@v5
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: |
-          🤖 Auto-update ARM template with latest workbook content
-          
-          - Combined content from demo-workbook-1.json
-          - Content hash: ${{ steps.process-workbook.outputs.content_hash }}
-          - Updated timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          - Triggered by: ${{ github.event_name }}
-          - Source commit: ${{ github.sha }}
-        title: "🤖 Auto-update ARM template with latest workbook content"
-        body: |
-          ## 🔄 Automated ARM Template Update
-          
-          This PR was automatically created to update the ARM template with the latest workbook content.
-          
-          ### 📋 Changes Summary
-          - **Source**: `demo-workbook-1.json`
-          - **Target**: `demo-armtemplate-1.json`
-          - **Content Hash**: `${{ steps.process-workbook.outputs.content_hash }}`
-          - **Trigger**: ${{ github.event_name }}
-          - **Source Commit**: ${{ github.sha }}
-          
-          ### 🔍 What Changed
-          - Updated workbook content in ARM template variables
-          - Refreshed metadata timestamps
-          - Validated template structure and syntax
-          
-          ### ✅ Validation Status
-          - [x] JSON syntax validation passed
-          - [x] ARM template structure validation passed
-          - [x] Workbook content embedding validation passed
-          
-          ### 🚀 Next Steps
-          Once this PR is merged, the deployment pipeline will automatically use the updated ARM template for future deployments.
-          
-          ---
-          *This PR was generated automatically by the Combine Workbook workflow.*
-        branch: auto-update-arm-template
-        delete-branch: true
-
-    - name: Direct Commit (for manual triggers)
-      if: steps.check-changes.outputs.has_changes == 'true' && github.event_name == 'workflow_dispatch'
+    - name: Commit and Push Changes
+      if: steps.check-changes.outputs.has_changes == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        
         git add demo-armtemplate-1.json
-        git commit -m "🤖 Auto-update ARM template with latest workbook content
-
-        - Combined content from demo-workbook-1.json
-        - Content hash: ${{ steps.process-workbook.outputs.content_hash }}
-        - Updated timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-        - Triggered by: manual workflow dispatch
-        - Source commit: ${{ github.sha }}"
+        git commit -m "🔄 Auto-update ARM template from workbook changes
         
+        - Generated from demo-workbook-1.json
+        - Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        - Source commit: ${{ github.sha }}
+        - Workflow: ${{ github.workflow }}
+        
+        Co-authored-by: GitHub Actions <action@github.com>"
+        
+        # Push changes
         git push
-        echo "✅ ARM template updated and committed directly to main branch"
 
-    - name: Summary
+    - name: Create Summary
+      if: always()
       run: |
-        echo "## 📋 Workbook Combination Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "- **Source File**: demo-workbook-1.json" >> $GITHUB_STEP_SUMMARY
-        echo "- **Target File**: demo-armtemplate-1.json" >> $GITHUB_STEP_SUMMARY
-        echo "- **Content Hash**: ${{ steps.process-workbook.outputs.content_hash }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Has Changes**: ${{ steps.check-changes.outputs.has_changes }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Template Size**: $(wc -c < demo-armtemplate-1.json) bytes" >> $GITHUB_STEP_SUMMARY
-        echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔄 Workbook to ARM Template Combination Results" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
         if [ "${{ steps.check-changes.outputs.has_changes }}" == "true" ]; then
-          if [ "${{ github.event_name }}" == "push" ]; then
-            echo "🔄 **Action Taken**: Created pull request for review" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "🔄 **Action Taken**: Committed changes directly to main branch" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "✅ **Status**: ARM template updated successfully" >> $GITHUB_STEP_SUMMARY
+          echo "📝 **Changes**: New ARM template generated and committed" >> $GITHUB_STEP_SUMMARY
         else
-          echo "ℹ️  **Action Taken**: No changes needed" >> $GITHUB_STEP_SUMMARY
+          echo "ℹ️ **Status**: No changes needed" >> $GITHUB_STEP_SUMMARY
+          echo "📝 **Changes**: ARM template is already up to date" >> $GITHUB_STEP_SUMMARY
         fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 **Template Info**:" >> $GITHUB_STEP_SUMMARY
+        echo "- File: \`demo-armtemplate-1.json\`" >> $GITHUB_STEP_SUMMARY
+        echo "- Source: \`demo-workbook-1.json\`" >> $GITHUB_STEP_SUMMARY
+        echo "- Generator: PowerShell Script (\`combine-workbook.ps1\`)" >> $GITHUB_STEP_SUMMARY
+        echo "- Resource Type: \`microsoft.insights/workbooktemplates\`" >> $GITHUB_STEP_SUMMARY
