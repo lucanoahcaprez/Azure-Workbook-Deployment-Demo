@@ -165,11 +165,3 @@ jobs:
         echo "- Source: \`demo-workbook-1.json\`" >> $GITHUB_STEP_SUMMARY
         echo "- Generator: PowerShell Script (\`combine-workbook.ps1\`)" >> $GITHUB_STEP_SUMMARY
         echo "- Resource Type: \`microsoft.insights/workbooktemplates\`" >> $GITHUB_STEP_SUMMARY
-
-    - name: Upload ARM Template as Artifact
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: arm-template
-        path: demo-armtemplate-1.json
-        retention-days: 1

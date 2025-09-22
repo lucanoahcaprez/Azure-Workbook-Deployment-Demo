@@ -57,14 +57,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Download ARM Template from Combine Workflow
-        if: github.event_name == 'workflow_run'
-        uses: actions/download-artifact@v4
         with:
-          name: arm-template
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
+          # When triggered by workflow_run, checkout the head commit from that workflow
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Azure Login
         uses: azure/login@v1
@@ -96,14 +91,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Download ARM Template from Combine Workflow
-        if: github.event_name == 'workflow_run'
-        uses: actions/download-artifact@v4
         with:
-          name: arm-template
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
+          # When triggered by workflow_run, checkout the head commit from that workflow
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Azure Login
         uses: azure/login@v1
