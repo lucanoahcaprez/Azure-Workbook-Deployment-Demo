@@ -147,11 +147,29 @@ try {
     
     # Convert to JSON and save
     $armJson = $armTemplate | ConvertTo-Json -Depth 25 -Compress:$false
-    $armJson | Set-Content "demo-armtemplate-1.json" -Encoding UTF8
+    
+    # Ensure proper encoding and clean formatting
+    $armJson = $armJson -replace '\r\n', "`n" -replace '\r', "`n"
+    $armJson | Set-Content "demo-armtemplate-1.json" -Encoding UTF8 -NoNewline
     
     # Validate generated ARM template
     Write-Host "🔍 Validating generated ARM template..." -ForegroundColor Yellow
-    $null = Get-Content "demo-armtemplate-1.json" -Raw | ConvertFrom-Json
+    try {
+        $null = Get-Content "demo-armtemplate-1.json" -Raw | ConvertFrom-Json
+        Write-Host "   JSON syntax: ✅ Valid" -ForegroundColor Green
+    } catch {
+        Write-Host "   JSON syntax: ❌ Invalid - $($_.Exception.Message)" -ForegroundColor Red
+        throw "Generated ARM template has invalid JSON syntax"
+    }
+    
+    # Additional Azure ARM template validation
+    $templateContent = Get-Content "demo-armtemplate-1.json" -Raw
+    if (-not $templateContent.StartsWith('{')) {
+        throw "ARM template must start with opening brace"
+    }
+    if (-not $templateContent.Contains('"$schema"')) {
+        throw "ARM template must contain $schema property"
+    }
     
     # Check template size
     $templateSize = (Get-Item "demo-armtemplate-1.json").Length
