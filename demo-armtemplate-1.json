@@ -2,76 +2,72 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "workbookContentHash": "75E64B6A3AD1AB410DD447B856208EE141B375CE5A819EB036BCE303F8708303",
+    "workbookContentHash": "D67D3D0810455FE42ECB57830D327C78499A238D6AA2CF5BD11B6E934159735D",
+    "workbookSize": 38631,
     "generatedBy": "Local combine-workbook.ps1 script",
-    "workbookSize": 39566,
-    "lastUpdated": "2025-09-22T06:10:33Z",
+    "lastUpdated": "2025-09-22T06:13:40Z",
     "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025"
   },
   "parameters": {
     "location": {
-      "defaultValue": "[resourceGroup().location]",
       "type": "string",
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Location for all resources."
       }
     },
-    "workbookDisplayName": {
-      "defaultValue": "Sample Dashboard WPNinjas 2025",
-      "type": "string",
-      "metadata": {
-        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
-      }
-    },
-    "workbookId": {
-      "defaultValue": "[newGuid()]",
-      "type": "string",
-      "metadata": {
-        "description": "The unique guid for this workbook template instance"
-      }
-    },
     "resourceTags": {
-      "defaultValue": {
-        "Project": "Azure-Workbook-Deployment-Demo",
-        "Environment": "Demo",
-        "CreatedBy": "ARM Template"
-      },
       "type": "object",
+      "defaultValue": {
+        "CreatedBy": "ARM Template",
+        "Project": "Azure-Workbook-Deployment-Demo",
+        "Environment": "Demo"
+      },
       "metadata": {
         "description": "Tags to apply to the workbook resource"
       }
     },
-    "templateName": {
-      "defaultValue": "A Workbook Template",
+    "templateCategory": {
       "type": "string",
+      "defaultValue": "Deployed Templates",
+      "metadata": {
+        "description": "The category for the workbook template in the gallery."
+      }
+    },
+    "templateName": {
+      "type": "string",
+      "defaultValue": "A Workbook Template",
       "metadata": {
         "description": "The name for the workbook template in the gallery."
       }
     },
-    "templateCategory": {
-      "defaultValue": "Deployed Templates",
+    "workbookId": {
       "type": "string",
+      "defaultValue": "[newGuid()]",
       "metadata": {
-        "description": "The category for the workbook template in the gallery."
+        "description": "The unique guid for this workbook template instance"
+      }
+    },
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Sample Dashboard WPNinjas 2025",
+      "metadata": {
+        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
       }
     }
   },
   "variables": {},
   "resources": [
     {
-      "location": "[parameters('location')]",
-      "name": "[parameters('workbookId')]",
       "type": "microsoft.insights/workbooktemplates",
-      "kind": "shared",
-      "tags": "[parameters('resourceTags')]",
       "properties": {
         "galleries": [
           {
-            "resourceType": "Azure Monitor",
-            "type": "workbook",
             "name": "[parameters('templateName')]",
+            "order": 100,
+            "type": "workbook",
             "category": "[parameters('templateCategory')]",
-            "order": 100
+            "resourceType": "Azure Monitor"
           }
         ],
         "templateData": {
@@ -1011,21 +1007,25 @@
           "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
         }
       },
+      "name": "[parameters('workbookId')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "kind": "shared",
       "apiVersion": "2020-11-20"
     }
   ],
   "outputs": {
-    "workbookContentHash": {
-      "type": "string",
-      "value": "75E64B6A3AD1AB410DD447B856208EE141B375CE5A819EB036BCE303F8708303"
+    "workbookTemplateName": {
+      "value": "[parameters('workbookDisplayName')]",
+      "type": "string"
     },
     "workbookTemplateId": {
-      "type": "string",
-      "value": "[resourceId('microsoft.insights/workbooktemplates', parameters('workbookId'))]"
+      "value": "[resourceId('microsoft.insights/workbooktemplates', parameters('workbookId'))]",
+      "type": "string"
     },
-    "workbookTemplateName": {
-      "type": "string",
-      "value": "[parameters('workbookDisplayName')]"
+    "workbookContentHash": {
+      "value": "D67D3D0810455FE42ECB57830D327C78499A238D6AA2CF5BD11B6E934159735D",
+      "type": "string"
     }
   }
 }
