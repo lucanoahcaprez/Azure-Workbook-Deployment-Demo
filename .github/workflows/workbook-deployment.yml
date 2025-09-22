@@ -180,6 +180,13 @@ jobs:
         # Push changes
         git push
 
+    - name: Upload ARM Template as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: arm-template
+        path: demo-armtemplate-1.json
+        retention-days: 1
+
   # Step 2: Validate ARM Template
   validate-template:
     runs-on: ubuntu-latest
@@ -189,13 +196,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          # Get the latest code including any commits from the generate step
-          ref: ${{ github.ref }}
 
-      - name: Pull latest changes
-        if: needs.generate-template.outputs.has_changes == 'true'
-        run: git pull origin ${{ github.ref_name }}
+      - name: Download ARM Template from Step 1
+        uses: actions/download-artifact@v4
+        with:
+          name: arm-template
+
+      - name: Verify ARM Template
+        run: |
+          echo "Using ARM template from Step 1:"
+          ls -la demo-armtemplate-1.json
+          echo "ARM template content hash:"
+          sha256sum demo-armtemplate-1.json
 
       - name: Azure Login
         uses: azure/login@v1
@@ -235,9 +247,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Pull latest changes
-        if: needs.generate-template.outputs.has_changes == 'true'
-        run: git pull origin ${{ github.ref_name }}
+      - name: Download ARM Template from Step 1
+        uses: actions/download-artifact@v4
+        with:
+          name: arm-template
+
+      - name: Verify ARM Template
+        run: |
+          echo "Using ARM template from Step 1:"
+          ls -la demo-armtemplate-1.json
+          echo "ARM template content hash:"
+          sha256sum demo-armtemplate-1.json
 
       - name: Azure Login
         uses: azure/login@v1
