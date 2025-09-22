@@ -43,10 +43,10 @@ try {
     # Generate timestamp
     $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
     
-    # Create ARM template content
+    # Create ARM template content with proper ordering
     Write-Host "🏗️  Generating ARM template for workbook template..." -ForegroundColor Yellow
     
-    $armTemplate = @{
+    $armTemplate = [ordered]@{
         '$schema' = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
         contentVersion = "1.0.0.0"
         metadata = @{

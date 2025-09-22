@@ -1,4 +1,62 @@
 {
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "generatedBy": "Local combine-workbook.ps1 script",
+    "lastUpdated": "2025-09-22T05:02:12Z",
+    "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025",
+    "workbookContentHash": "807BC1EECB074B9B3604D4DB89B518FF4277FCCAC0458C3F4322413DCCA9382A",
+    "workbookSize": 39687
+  },
+  "parameters": {
+    "workbookId": {
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook template instance"
+      },
+      "type": "string"
+    },
+    "resourceTags": {
+      "defaultValue": {
+        "Environment": "Demo",
+        "CreatedBy": "ARM Template",
+        "Project": "Azure-Workbook-Deployment-Demo"
+      },
+      "metadata": {
+        "description": "Tags to apply to the workbook resource"
+      },
+      "type": "object"
+    },
+    "workbookDisplayName": {
+      "defaultValue": "Sample Dashboard WPNinjas 2025",
+      "metadata": {
+        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
+      },
+      "type": "string"
+    },
+    "templateName": {
+      "defaultValue": "A Workbook Template",
+      "metadata": {
+        "description": "The name for the workbook template in the gallery."
+      },
+      "type": "string"
+    },
+    "templateCategory": {
+      "defaultValue": "Deployed Templates",
+      "metadata": {
+        "description": "The category for the workbook template in the gallery."
+      },
+      "type": "string"
+    },
+    "location": {
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      },
+      "type": "string"
+    }
+  },
+  "variables": {},
   "resources": [
     {
       "properties": {
@@ -959,63 +1017,6 @@
       "kind": "shared"
     }
   ],
-  "metadata": {
-    "generatedBy": "Local combine-workbook.ps1 script",
-    "lastUpdated": "2025-09-22T04:57:00Z",
-    "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025",
-    "workbookContentHash": "807BC1EECB074B9B3604D4DB89B518FF4277FCCAC0458C3F4322413DCCA9382A",
-    "workbookSize": 39687
-  },
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "variables": {},
-  "parameters": {
-    "workbookId": {
-      "defaultValue": "[newGuid()]",
-      "metadata": {
-        "description": "The unique guid for this workbook template instance"
-      },
-      "type": "string"
-    },
-    "resourceTags": {
-      "defaultValue": {
-        "Environment": "Demo",
-        "CreatedBy": "ARM Template",
-        "Project": "Azure-Workbook-Deployment-Demo"
-      },
-      "metadata": {
-        "description": "Tags to apply to the workbook resource"
-      },
-      "type": "object"
-    },
-    "workbookDisplayName": {
-      "defaultValue": "Sample Dashboard WPNinjas 2025",
-      "metadata": {
-        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
-      },
-      "type": "string"
-    },
-    "templateName": {
-      "defaultValue": "A Workbook Template",
-      "metadata": {
-        "description": "The name for the workbook template in the gallery."
-      },
-      "type": "string"
-    },
-    "templateCategory": {
-      "defaultValue": "Deployed Templates",
-      "metadata": {
-        "description": "The category for the workbook template in the gallery."
-      },
-      "type": "string"
-    },
-    "location": {
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "Location for all resources."
-      },
-      "type": "string"
-    }
-  },
   "outputs": {
     "workbookTemplateName": {
       "value": "[parameters('workbookDisplayName')]",
@@ -1029,6 +1030,5 @@
       "value": "807BC1EECB074B9B3604D4DB89B518FF4277FCCAC0458C3F4322413DCCA9382A",
       "type": "string"
     }
-  },
-  "contentVersion": "1.0.0.0"
+  }
 }
