@@ -1,52 +1,1010 @@
 {
-  "outputs": {
-    "workbookContentHash": {
-      "value": "807BC1EECB074B9B3604D4DB89B518FF4277FCCAC0458C3F4322413DCCA9382A",
-      "type": "string"
-    },
-    "workbookId": {
-      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]",
-      "type": "string"
-    },
-    "workbookName": {
-      "value": "[parameters('workbookDisplayName')]",
-      "type": "string"
-    }
-  },
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "resources": [
     {
-      "apiVersion": "2022-04-01",
       "properties": {
-        "sourceId": "[parameters('workbookSourceId')]",
-        "serializedData": "[variables('workbookContentFromFile')]",
-        "category": "[parameters('workbookType')]",
-        "displayName": "[parameters('workbookDisplayName')]",
-        "version": "1.0"
+        "galleries": [
+          {
+            "name": "[parameters('templateName')]",
+            "category": "[parameters('templateCategory')]",
+            "order": 100,
+            "resourceType": "Azure Monitor",
+            "type": "workbook"
+          }
+        ],
+        "templateData": {
+          "version": "Notebook/1.0",
+          "items": [
+            {
+              "type": 9,
+              "content": {
+                "version": "KqlParameterItem/1.0",
+                "crossComponentResources": [
+                  "{LogAnalyticsWorkspaces}"
+                ],
+                "parameters": [
+                  {
+                    "id": "4fe97648-1a49-4fd7-a4a6-20c6a2327bd3",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "TimeRange",
+                    "label": "Time Range",
+                    "type": 4,
+                    "isGlobal": true,
+                    "typeSettings": {
+                      "selectableValues": [
+                        {
+                          "durationMs": 1800000
+                        },
+                        {
+                          "durationMs": 3600000
+                        },
+                        {
+                          "durationMs": 14400000
+                        },
+                        {
+                          "durationMs": 43200000
+                        },
+                        {
+                          "durationMs": 86400000
+                        },
+                        {
+                          "durationMs": 172800000
+                        },
+                        {
+                          "durationMs": 259200000
+                        },
+                        {
+                          "durationMs": 604800000
+                        },
+                        {
+                          "durationMs": 1209600000
+                        },
+                        {
+                          "durationMs": 2592000000
+                        }
+                      ],
+                      "allowCustom": true
+                    },
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "value": {
+                      "durationMs": 604800000
+                    }
+                  },
+                  {
+                    "id": "e2c82b9c-bcaf-462f-915e-11c773156800",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "Subscriptions",
+                    "type": 6,
+                    "isRequired": true,
+                    "multiSelect": true,
+                    "quote": "'",
+                    "delimiter": ",",
+                    "typeSettings": {
+                      "additionalResourceOptions": [
+                        "value::all"
+                      ],
+                      "includeAll": true
+                    },
+                    "defaultValue": "value::all",
+                    "value": [
+                      "/subscriptions/79e32b40-6dd1-45dc-a9b2-70cd5a110aa8"
+                    ]
+                  },
+                  {
+                    "id": "38e9a996-2ba5-44e5-a1a6-fcbf670370d2",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "LogAnalyticsWorkspaces",
+                    "label": "Log Analytics Workspaces",
+                    "type": 5,
+                    "isRequired": true,
+                    "multiSelect": true,
+                    "quote": "'",
+                    "delimiter": ",",
+                    "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| project id",
+                    "crossComponentResources": [
+                      "{Subscriptions}"
+                    ],
+                    "typeSettings": {
+                      "resourceTypeFilter": {
+                        "microsoft.operationalinsights/workspaces": true
+                      },
+                      "additionalResourceOptions": [
+                        "value::all"
+                      ],
+                      "showDefault": false
+                    },
+                    "defaultValue": "value::all",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "value": [
+                      "value::all"
+                    ]
+                  },
+                  {
+                    "id": "b52f0933-be39-49be-82e1-7d37262f3670",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "OSSelection",
+                    "label": "Operating System",
+                    "type": 2,
+                    "isRequired": true,
+                    "isGlobal": true,
+                    "multiSelect": true,
+                    "quote": "'",
+                    "delimiter": ",",
+                    "query": "IntuneDevices\r\n| distinct OS",
+                    "crossComponentResources": [
+                      "{LogAnalyticsWorkspaces}"
+                    ],
+                    "typeSettings": {
+                      "additionalResourceOptions": [
+                        "value::all"
+                      ],
+                      "showDefault": false
+                    },
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "timeContextFromParameter": "TimeRange",
+                    "defaultValue": "value::all",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces",
+                    "value": [
+                      "value::all"
+                    ]
+                  },
+                  {
+                    "id": "1feac0c0-9dcf-476f-a739-1be6bec3020b",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "ExtendedDeviceFilter",
+                    "type": 1,
+                    "isHiddenWhenLocked": true,
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "timeContextFromParameter": "TimeRange",
+                    "defaultValue": "| where ManagedBy != \"MDE\"",
+                    "value": "| where ManagedBy != \"MDE\""
+                  },
+                  {
+                    "id": "ef1ffc33-11eb-439e-b47a-599e83f427fa",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "LastIntuneDiagnosticsImport",
+                    "type": 1,
+                    "isRequired": true,
+                    "query": "IntuneDevices\r\n| where OS in ({OSSelection})\r\n{ExtendedDeviceFilter}| extend SwissTime = tostring(format_datetime(TimeGenerated, 'dd.MM.yyyy HH:mm:ss'))\r\n| project SwissTime\r\n| take 1",
+                    "crossComponentResources": [
+                      "{LogAnalyticsWorkspaces}"
+                    ],
+                    "isHiddenWhenLocked": true,
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "timeContextFromParameter": "TimeRange",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces"
+                  },
+                  {
+                    "id": "a139aff3-827b-4783-8090-7da0d7528b4e",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "ConsideredActiveDays",
+                    "type": 4,
+                    "isRequired": true,
+                    "isGlobal": true,
+                    "isHiddenWhenLocked": true,
+                    "typeSettings": {
+                      "selectableValues": [
+                        {
+                          "durationMs": 86400000
+                        },
+                        {
+                          "durationMs": 259200000
+                        },
+                        {
+                          "durationMs": 604800000
+                        },
+                        {
+                          "durationMs": 1209600000
+                        },
+                        {
+                          "durationMs": 2592000000
+                        },
+                        {
+                          "durationMs": 5184000000
+                        },
+                        {
+                          "durationMs": 7776000000
+                        }
+                      ]
+                    },
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "timeContextFromParameter": "TimeRange",
+                    "value": {
+                      "durationMs": 604800000
+                    }
+                  },
+                  {
+                    "id": "be336a04-057b-4e11-87a4-68d615778b6f",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "AzureFunctionVersion",
+                    "type": 9,
+                    "isRequired": true,
+                    "isGlobal": true,
+                    "multiSelect": true,
+                    "quote": "'",
+                    "delimiter": ",",
+                    "query": "let rawData = externaldata(AzureFunctionVersion:string)[   'https://func-lnc-kpidashboard-test-chn-02.azurewebsites.net/api/func-lnc-sampledashboardwpninjas2025-test-chn-01?code=LEgx35VLo9k5xFSZhH0lSMqOC-jvpN4KsNr00SJ2kBENAzFuJYLfLQ==&evaluationType=azurefunctionversion']with(format='multijson');rawData | extend AzureFunctionVersion = tostring(AzureFunctionVersion)",
+                    "crossComponentResources": [
+                      "{LogAnalyticsWorkspaces}"
+                    ],
+                    "isHiddenWhenLocked": true,
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "timeContextFromParameter": "TimeRange",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces",
+                    "value": [
+                      "1.0.4"
+                    ]
+                  }
+                ],
+                "style": "pills",
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces"
+              },
+              "name": "parameters - 0"
+            },
+            {
+              "type": 11,
+              "content": {
+                "version": "LinkItem/1.0",
+                "style": "tabs",
+                "tabStyle": "bigger",
+                "links": [
+                  {
+                    "id": "cd561c05-b63a-4087-8069-68c384b226ef",
+                    "cellValue": "GroupName",
+                    "linkTarget": "parameter",
+                    "linkLabel": "Sample Dashboard Overview",
+                    "subTarget": "SampleDashboardOverview",
+                    "preText": "KPI Overview",
+                    "style": "link"
+                  },
+                  {
+                    "id": "673edfdf-bedc-4706-9c3a-c2b1e98fe395",
+                    "cellValue": "GroupName",
+                    "linkTarget": "parameter",
+                    "linkLabel": "Example Tab 1",
+                    "subTarget": "ExampleTab1",
+                    "style": "link"
+                  }
+                ]
+              },
+              "name": "mainnavbar",
+              "styleSettings": {
+                "margin": "0",
+                "padding": "0"
+              }
+            },
+            {
+              "type": 12,
+              "content": {
+                "version": "NotebookGroup/1.0",
+                "groupType": "editable",
+                "items": [
+                  {
+                    "type": 1,
+                    "content": {
+                      "json": "<div style=\"font-family:'Segoe UI', sans-serif; background-color:#ffffff;\">\r\n  <div style=\"display: flex; justify-content: space-between; align-items: center;\">\r\n    <h2 style=\"color:#green; font-size:35px;\">Sample Dashboard WPNinjas 2025</h2>\r\n  <img src=\"https://summit.wpninjas.global/wp-content/uploads/2025/04/Global-NinjaSummit-BANNER.png\"  \r\n       alt=\"baseVISION Logo\" \r\n       style=\"background-color: #000; max-height: 200px; padding: 0px;\" />\r\n</div>\r\n\r\n  \r\n  <div style=\"display:flex; justify-content:space-between;  border-bottom:1px solid #000;\">\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🛠 Intune Diagnostics</h4>\r\n      <p><strong>Last Import:</strong> <span>{LastIntuneDiagnosticsImport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🔄 Windows Update</h4>\r\n      <p><strong>Last Report:</strong> <span>{LastWindowsUpdateReport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>⚙️ Versions</h4>\r\n      <p><strong>KQL Dashboard:</strong> <span>'1.0.5'</span></p>\r\n      <p><strong>Azure Function:</strong> <span>{AzureFunctionVersion}</span></p>\r\n    </div>\r\n  </div>\r\n</div>"
+                    },
+                    "name": "text - 3"
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "IntuneDevices\r\n| where OS in ({OSSelection})\r\n{ExtendedDeviceFilter}| where todatetime(LastContact) {ConsideredActiveDays:value}\r\n| summarize UniqueDeviceCount = dcount(DeviceId)",
+                      "size": 4,
+                      "title": "Active Devices Intune (Count) - Logs",
+                      "timeContextFromParameter": "TimeRange",
+                      "queryType": 0,
+                      "resourceType": "microsoft.operationalinsights/workspaces",
+                      "crossComponentResources": [
+                        "{LogAnalyticsWorkspaces}"
+                      ],
+                      "visualization": "stat",
+                      "statSettings": {
+                        "valueAggregation": "None",
+                        "valueTooltipSettings": {
+                          "tooltip": "This is how many users you have in Entra ID."
+                        },
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "foreground",
+                          "heatmapPalette": "greenRed",
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "operator": ">=",
+                              "thresholdValue": "0",
+                              "representation": "Signout"
+                            }
+                          ]
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto"
+                      }
+                    },
+                    "customWidth": "12.5",
+                    "name": "Active Devices Intune (Count) - Logs",
+                    "styleSettings": {
+                      "maxWidth": "12.5"
+                    }
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "{\"version\":\"MsGraphEndpoint/1.0\",\"data\":null,\"headers\":[{\"key\":\"ConsistencyLevel\",\"value\":\"eventual\"}],\"method\":\"GET\",\"path\":\"/beta/devicemanagement/managedDevices\",\"urlParams\":[{\"key\":\"$count\",\"value\":\"true\"},{\"key\":\"$filter\",\"value\":\"lastSyncDateTime ge {ConsideredActiveDays:startISO}\"}],\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"\",\"columns\":[{\"path\":\"$..['@odata.count']\",\"columnid\":\"Count\",\"columnType\":\"long\"}]}}]}",
+                      "size": 4,
+                      "title": "Active intune Device (Count) - Graph",
+                      "exportToExcelOptions": "all",
+                      "queryType": 14,
+                      "visualization": "stat",
+                      "gridSettings": {
+                        "formatters": [
+                          {
+                            "columnMatch": "Assigned",
+                            "formatter": 0,
+                            "formatOptions": {
+                              "aggregation": "Count"
+                            }
+                          }
+                        ]
+                      },
+                      "sortBy": [],
+                      "tileSettings": {
+                        "titleContent": {},
+                        "leftContent": {
+                          "columnMatch": "JailBrokenCount",
+                          "formatter": 8,
+                          "formatOptions": {
+                            "min": 0,
+                            "max": 1,
+                            "palette": "red",
+                            "linkTarget": "GenericDetails",
+                            "linkIsContextBlade": true
+                          }
+                        },
+                        "showBorder": true,
+                        "size": "auto",
+                        "styleSettings": {
+                          "borderStyle": "rounded"
+                        }
+                      },
+                      "statSettings": {
+                        "valueAggregation": "Count",
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "foreground",
+                          "heatmapPalette": "greenRed",
+                          "heatmapMin": 0,
+                          "heatmapMax": 1,
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "operator": ">=",
+                              "thresholdValue": "0",
+                              "representation": "PersonWithFriend"
+                            }
+                          ]
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto",
+                        "valueTooltipSettings": {
+                          "tooltip": "The number of all Applications which are not assigned."
+                        },
+                        "valueField": "Count"
+                      }
+                    },
+                    "customWidth": "12.5",
+                    "name": "Active intune Device (Count) - Graph",
+                    "styleSettings": {
+                      "maxWidth": "12.5"
+                    }
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "IntuneDevices\r\n| where OS in ({OSSelection})\r\n{ExtendedDeviceFilter}| where todatetime(LastContact) {ConsideredActiveDays:value}\r\n| summarize \r\n    TotalDevices = count(),\r\n    CompliantDevices = countif(CompliantState == \"Compliant\")\r\n| extend CompliancePercentage = (todouble(CompliantDevices) / TotalDevices * 100)\r\n| project CompliancePercentage",
+                      "size": 4,
+                      "title": "Active Intune Devices Compliance",
+                      "timeContextFromParameter": "TimeRange",
+                      "queryType": 0,
+                      "resourceType": "microsoft.operationalinsights/workspaces",
+                      "crossComponentResources": [
+                        "{LogAnalyticsWorkspaces}"
+                      ],
+                      "visualization": "stat",
+                      "statSettings": {
+                        "valueField": "CompliancePercentage",
+                        "valueAggregation": "None",
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "background",
+                          "heatmapPalette": "redGreen",
+                          "heatmapMin": 90,
+                          "heatmapMax": 100,
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "sourceColumn": "CompliancePercentage",
+                              "operator": ">=",
+                              "thresholdValue": "90",
+                              "representation": "success"
+                            },
+                            {
+                              "sourceColumn": "CompliancePercentage",
+                              "operator": "<",
+                              "thresholdValue": "90",
+                              "representation": "3"
+                            }
+                          ]
+                        },
+                        "numberFormatSettings": {
+                          "unit": 1,
+                          "options": {
+                            "style": "decimal",
+                            "useGrouping": true,
+                            "maximumFractionDigits": 2
+                          }
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto"
+                      }
+                    },
+                    "customWidth": "12.5",
+                    "showPin": false,
+                    "name": "Active Intune Devices Compliance",
+                    "styleSettings": {
+                      "maxWidth": "12.5"
+                    }
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "IntuneDevices\r\n| where OS in ({OSSelection})\r\n| join kind=inner (\r\n    UCClient\r\n) on $left.ReferenceId == $right.AzureADDeviceId\r\n| summarize \r\n    TotalDevices = count(),\r\n    CompliantDevices = countif(tostring(OSSecurityUpdateStatus) == \"Latest\")\r\n| extend CompliancePercentage = case(\r\n    TotalDevices == 0, 0.0,\r\n    isnan(todouble(CompliantDevices) / TotalDevices * 100), 0.0,\r\n    todouble(CompliantDevices) / TotalDevices * 100\r\n)\r\n| project CompliancePercentage",
+                      "size": 4,
+                      "title": "Device OS Update Benchmark",
+                      "timeContextFromParameter": "TimeRange",
+                      "queryType": 0,
+                      "resourceType": "microsoft.operationalinsights/workspaces",
+                      "crossComponentResources": [
+                        "{LogAnalyticsWorkspaces}"
+                      ],
+                      "visualization": "stat",
+                      "statSettings": {
+                        "valueAggregation": "None",
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "background",
+                          "heatmapPalette": "greenRed",
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "sourceColumn": "CompliancePercentage",
+                              "operator": ">=",
+                              "thresholdValue": "90",
+                              "representation": "success"
+                            },
+                            {
+                              "sourceColumn": "CompliancePercentage",
+                              "operator": "<",
+                              "thresholdValue": "90",
+                              "representation": "3"
+                            }
+                          ]
+                        },
+                        "numberFormatSettings": {
+                          "unit": 1,
+                          "options": {
+                            "style": "decimal",
+                            "useGrouping": true,
+                            "maximumFractionDigits": 2
+                          }
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto"
+                      }
+                    },
+                    "customWidth": "12.5",
+                    "name": "Device OS Update Benchmark",
+                    "styleSettings": {
+                      "maxWidth": "12.5"
+                    }
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "// Prepare the subtables\r\nlet UCServiceUpdateStatus_Info = UCServiceUpdateStatus | where UpdateCategory == \"DriverUpdate\" and ServiceState != \"Cancelled\" ;                               \r\nlet UCUpdateAlert_Info = UCUpdateAlert | where UpdateCategory == \"DriverUpdate\" and AlertStatus == \"Active\" ;\r\nlet UCClientUpdateStatus_Info = UCClientUpdateStatus | where UpdateCategory == \"DriverUpdate\" ;\r\nlet UCServiceClientUpdateStatus = UCServiceUpdateStatus_Info | join kind=leftouter (UCClientUpdateStatus_Info) on  AzureADDeviceId, CatalogId; \r\nlet UCDriverAlertsWithPolicyId = UCServiceUpdateStatus_Info | join kind=inner(UCUpdateAlert_Info) on  AzureADDeviceId, CatalogId;\r\n\r\n// Business logic\r\nlet AggregateDeviceCounts = UCServiceClientUpdateStatus\r\n| summarize \r\n    TotalDevices=dcount(AzureADDeviceId),\r\n    InstalledCount=dcountif(AzureADDeviceId, ClientState == \"Installed\") by PolicyId, CatalogId, UpdateClassification, UpdateDisplayName, DeploymentApprovedTime, UpdateManufacturer, ServiceState, ServiceSubstate, ClientState, ClientSubstate\r\n| extend TotalProgress=round((InstalledCount * 1.0/ TotalDevices) * 100, 1);\r\n\r\nlet AggregateAlertSubTypeCount = UCDriverAlertsWithPolicyId \r\n| summarize Alerts=dcount(ErrorCode) by PolicyId, CatalogId, DeploymentId,UpdateManufacturer, UpdateCategory, UpdateClassification, ServiceState, ServiceSubstate;\r\n\r\n// join for final output\r\nAggregateDeviceCounts\r\n| join kind=leftouter (AggregateAlertSubTypeCount) on PolicyId,CatalogId\r\n| summarize by PolicyId, CatalogId, DeploymentId,UpdateDisplayName, DeploymentApprovedTime, UpdateManufacturer, UpdateClassification, TotalProgress, Alerts, TotalDevices, UpdateCategory, ServiceState, ServiceSubstate, ClientState, ClientSubstate\r\n| summarize \r\n    CompliantDrivers = countif(todouble(TotalProgress) >= 90),\r\n    TotalDrivers = count()\r\n| extend CompliancePercentage = (todouble(CompliantDrivers) / todouble(TotalDrivers) * 100)\r\n| project CompliancePercentage",
+                      "size": 4,
+                      "title": "Device Driver Update Benchmark",
+                      "timeContextFromParameter": "TimeRange",
+                      "queryType": 0,
+                      "resourceType": "microsoft.operationalinsights/workspaces",
+                      "crossComponentResources": [
+                        "{LogAnalyticsWorkspaces}"
+                      ],
+                      "visualization": "stat",
+                      "statSettings": {
+                        "valueAggregation": "None",
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "background",
+                          "heatmapPalette": "greenRed",
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "sourceColumn": "CompliancePercentage",
+                              "operator": ">=",
+                              "thresholdValue": "90",
+                              "representation": "success"
+                            },
+                            {
+                              "sourceColumn": "CompliancePercentage",
+                              "operator": "<",
+                              "thresholdValue": "90",
+                              "representation": "3"
+                            }
+                          ]
+                        },
+                        "numberFormatSettings": {
+                          "unit": 1,
+                          "options": {
+                            "style": "decimal",
+                            "useGrouping": true,
+                            "maximumFractionDigits": 2
+                          }
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto"
+                      }
+                    },
+                    "customWidth": "12.5",
+                    "name": "Device Driver Update Benchmark",
+                    "styleSettings": {
+                      "maxWidth": "12.5"
+                    }
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "let rawData = externaldata(ApplicationId:string,  DisplayName:string, Platform_loc:string, FailedDevicePercentage:real, FailedDeviceCount:int, FailedUserCount:int, InstalledDeviceCount:int)\r\n[\r\n    'https://func-frqeizmvascwy.azurewebsites.net/api/kqldashboard-prod-01?code=5T4vhf8i4mVTAG19OLqUG2C8pYSz95YBi46t-yaV18CwAzFus4coOQ==&evaluationType=deviceManagement_reports_getAppsInstallSummaryReport'\r\n]\r\nwith(format='multijson');\r\n\r\nrawData\r\n| where Platform_loc in ({OSSelection})\r\n| summarize \r\n    CompliantDrivers = countif(todouble(FailedDevicePercentage) < 10),\r\n    TotalDrivers = count()\r\n| extend CompliancePercentage = (todouble(CompliantDrivers) / todouble(TotalDrivers) * 100)\r\n| project CompliancePercentage",
+                      "size": 4,
+                      "title": "Device Application Installation Benchmark",
+                      "timeContextFromParameter": "TimeRange",
+                      "queryType": 0,
+                      "resourceType": "microsoft.operationalinsights/workspaces",
+                      "crossComponentResources": [
+                        "{LogAnalyticsWorkspaces}"
+                      ],
+                      "visualization": "stat",
+                      "statSettings": {
+                        "valueAggregation": "None",
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "background",
+                          "heatmapPalette": "greenRed",
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "sourceColumn": "CompliancePercentage",
+                              "operator": ">=",
+                              "thresholdValue": "90",
+                              "representation": "success"
+                            },
+                            {
+                              "sourceColumn": "CompliancePercentage",
+                              "operator": "<",
+                              "thresholdValue": "90",
+                              "representation": "3"
+                            }
+                          ]
+                        },
+                        "numberFormatSettings": {
+                          "unit": 1,
+                          "options": {
+                            "style": "decimal",
+                            "useGrouping": true,
+                            "maximumFractionDigits": 2
+                          }
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto"
+                      }
+                    },
+                    "customWidth": "12.5",
+                    "name": "Device Application Installation Benchmark",
+                    "styleSettings": {
+                      "maxWidth": "12.5"
+                    }
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "{\"version\":\"MsGraphEndpoint/1.0\",\"data\":null,\"headers\":[{\"key\":\"ConsistencyLevel\",\"value\":\"eventual\"}],\"method\":\"GET\",\"path\":\"/beta/users\",\"urlParams\":[{\"key\":\"$count\",\"value\":\"true\"}],\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"\",\"columns\":[{\"path\":\"$..['@odata.count']\",\"columnid\":\"Count\",\"columnType\":\"long\"}]}}]}",
+                      "size": 4,
+                      "title": "All Entra ID Users - Graph",
+                      "exportToExcelOptions": "all",
+                      "queryType": 14,
+                      "visualization": "stat",
+                      "gridSettings": {
+                        "formatters": [
+                          {
+                            "columnMatch": "Assigned",
+                            "formatter": 0,
+                            "formatOptions": {
+                              "aggregation": "Count"
+                            }
+                          }
+                        ]
+                      },
+                      "sortBy": [],
+                      "tileSettings": {
+                        "titleContent": {},
+                        "leftContent": {
+                          "columnMatch": "JailBrokenCount",
+                          "formatter": 8,
+                          "formatOptions": {
+                            "min": 0,
+                            "max": 1,
+                            "palette": "red",
+                            "linkTarget": "GenericDetails",
+                            "linkIsContextBlade": true
+                          }
+                        },
+                        "showBorder": true,
+                        "size": "auto",
+                        "styleSettings": {
+                          "borderStyle": "rounded"
+                        }
+                      },
+                      "statSettings": {
+                        "valueAggregation": "Count",
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "foreground",
+                          "heatmapPalette": "greenRed",
+                          "heatmapMin": 0,
+                          "heatmapMax": 1,
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "operator": ">=",
+                              "thresholdValue": "0",
+                              "representation": "PersonWithFriend"
+                            }
+                          ]
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto",
+                        "valueTooltipSettings": {
+                          "tooltip": "The number of all Applications which are not assigned."
+                        },
+                        "valueField": "Count"
+                      }
+                    },
+                    "customWidth": "12.5",
+                    "name": "All Entra ID Users - Graph",
+                    "styleSettings": {
+                      "maxWidth": "12.5"
+                    }
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "{\"version\":\"MsGraphEndpoint/1.0\",\"data\":null,\"headers\":[{\"key\":\"ConsistencyLevel\",\"value\":\"eventual\"}],\"method\":\"GET\",\"path\":\"/beta/users\",\"urlParams\":[{\"key\":\"$filter\",\"value\":\"userType eq 'Member'\"},{\"key\":\"$count\",\"value\":\"true\"}],\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"\",\"columns\":[{\"path\":\"$..['@odata.count']\",\"columnid\":\"Count\",\"columnType\":\"long\"}]}}]}",
+                      "size": 4,
+                      "title": "Active Entra ID Members - Graph",
+                      "exportToExcelOptions": "all",
+                      "queryType": 14,
+                      "visualization": "stat",
+                      "gridSettings": {
+                        "formatters": [
+                          {
+                            "columnMatch": "Assigned",
+                            "formatter": 0,
+                            "formatOptions": {
+                              "aggregation": "Count"
+                            }
+                          }
+                        ]
+                      },
+                      "sortBy": [],
+                      "tileSettings": {
+                        "titleContent": {},
+                        "leftContent": {
+                          "columnMatch": "JailBrokenCount",
+                          "formatter": 8,
+                          "formatOptions": {
+                            "min": 0,
+                            "max": 1,
+                            "palette": "red",
+                            "linkTarget": "GenericDetails",
+                            "linkIsContextBlade": true
+                          }
+                        },
+                        "showBorder": true,
+                        "size": "auto",
+                        "styleSettings": {
+                          "borderStyle": "rounded"
+                        }
+                      },
+                      "statSettings": {
+                        "valueAggregation": "Count",
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "foreground",
+                          "heatmapPalette": "greenRed",
+                          "heatmapMin": 0,
+                          "heatmapMax": 1,
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "operator": ">=",
+                              "thresholdValue": "0",
+                              "representation": "PersonWithFriend"
+                            }
+                          ]
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto",
+                        "valueTooltipSettings": {
+                          "tooltip": "The number of all Applications which are not assigned."
+                        },
+                        "valueField": "Count"
+                      }
+                    },
+                    "customWidth": "12.5",
+                    "name": "Active Entra ID Members - Graph",
+                    "styleSettings": {
+                      "maxWidth": "12.5"
+                    }
+                  }
+                ]
+              },
+              "conditionalVisibility": {
+                "parameterName": "GroupName",
+                "comparison": "isEqualTo",
+                "value": "SampleDashboardOverview"
+              },
+              "name": "GroupName KPI Overview"
+            },
+            {
+              "type": 12,
+              "content": {
+                "version": "NotebookGroup/1.0",
+                "groupType": "editable",
+                "items": [
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "{\"version\":\"MsGraphEndpoint/1.0\",\"data\":null,\"headers\":[{\"key\":\"ConsitencyLevel\",\"value\":\"eventual\"}],\"method\":\"GET\",\"path\":\"/beta/deviceManagement/managedDevices\",\"urlParams\":[{\"key\":\"$filter\",\"value\":\"lastSyncDateTime ge {ConsideredActiveDays:startISO}\"},{\"key\":\"$select\",\"value\":\"id,deviceName,userPrincipalName,lastSyncDateTime,complianceState,operatingSystem,ownerType,Id\"},{\"key\":\"$top\",\"value\":\"999\"}],\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.id\",\"columnid\":\"Device Name\",\"columnType\":\"string\"},{\"path\":\"$.lastSyncDateTime\",\"columnid\":\"Last_Sync_Date_Time\",\"columnType\":\"datetime\"},{\"path\":\"$.complianceState\",\"columnid\":\"Compliance_State\",\"columnType\":\"string\"},{\"path\":\"$.operatingSystem\",\"columnid\":\"Operating_System\",\"columnType\":\"string\"},{\"path\":\"$.ownerType\",\"columnid\":\"Owner_Type\",\"columnType\":\"string\"},{\"path\":\"$.id\",\"columnid\":\"ID\"}]}}]}",
+                      "size": 0,
+                      "title": "Active Intune Devices - Graph",
+                      "showExportToExcel": true,
+                      "queryType": 14,
+                      "gridSettings": {
+                        "formatters": [
+                          {
+                            "columnMatch": "Device_Name",
+                            "formatter": 1,
+                            "formatOptions": {
+                              "workbookContext": {
+                                "componentIdSource": "workbook",
+                                "resourceIdsSource": "workbook",
+                                "templateIdSource": "cell",
+                                "typeSource": "workbook",
+                                "gallerySource": "workbook",
+                                "locationSource": "default",
+                                "viewerMode": true
+                              }
+                            }
+                          },
+                          {
+                            "columnMatch": "Compliance_State",
+                            "formatter": 18,
+                            "formatOptions": {
+                              "thresholdsOptions": "icons",
+                              "thresholdsGrid": [
+                                {
+                                  "operator": "==",
+                                  "thresholdValue": "noncompliant",
+                                  "representation": "4",
+                                  "text": "{0}{1}"
+                                },
+                                {
+                                  "operator": "Default",
+                                  "thresholdValue": null,
+                                  "representation": "success",
+                                  "text": "{0}{1}"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "columnMatch": "ID",
+                            "formatter": 5
+                          }
+                        ],
+                        "rowLimit": 1000,
+                        "filter": true,
+                        "labelSettings": [
+                          {
+                            "columnId": "Last_Sync_Date_Time",
+                            "label": "Last Sync Date Time"
+                          },
+                          {
+                            "columnId": "Compliance_State",
+                            "label": "Compliance State"
+                          },
+                          {
+                            "columnId": "Operating_System",
+                            "label": "Operating System"
+                          },
+                          {
+                            "columnId": "Owner_Type",
+                            "label": "Owner Type"
+                          }
+                        ]
+                      },
+                      "sortBy": [],
+                      "tileSettings": {
+                        "titleContent": {},
+                        "leftContent": {
+                          "columnMatch": "JailBrokenCount",
+                          "formatter": 8,
+                          "formatOptions": {
+                            "min": 0,
+                            "max": 1,
+                            "palette": "red",
+                            "linkTarget": "GenericDetails",
+                            "linkIsContextBlade": true
+                          }
+                        },
+                        "showBorder": true,
+                        "size": "auto",
+                        "styleSettings": {
+                          "borderStyle": "rounded"
+                        }
+                      },
+                      "statSettings": {
+                        "valueAggregation": "Count",
+                        "colorSettings": {
+                          "type": "static",
+                          "mode": "foreground",
+                          "heatmapPalette": "greenRed",
+                          "heatmapMin": 0,
+                          "heatmapMax": 1,
+                          "thresholdsGrid": []
+                        },
+                        "iconSettings": {
+                          "thresholdsGrid": [
+                            {
+                              "operator": ">=",
+                              "thresholdValue": "0",
+                              "representation": "PersonWithFriend"
+                            }
+                          ]
+                        },
+                        "tagText": "",
+                        "valueFontStyle": "auto",
+                        "valueTooltipSettings": {
+                          "tooltip": "The number of all Applications which are not assigned."
+                        },
+                        "valueField": "Count"
+                      }
+                    },
+                    "name": "Active Intune Devices - Graph"
+                  }
+                ]
+              },
+              "conditionalVisibility": {
+                "parameterName": "GroupName",
+                "comparison": "isEqualTo",
+                "value": "ExampleTab1"
+              },
+              "customWidth": "50",
+              "name": "group - 3"
+            }
+          ],
+          "fallbackResourceIds": [
+            "azure monitor"
+          ],
+          "fromTemplateId": "ArmTemplates-/subscriptions/79e32b40-6dd1-45dc-a9b2-70cd5a110aa8/resourceGroups/rg-wb-chb-kql-kpidashboard-prod-01/providers/microsoft.insights/workbooktemplates/f144f607-a85a-4724-a1bb-24477c1294cf",
+          "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+        }
       },
-      "type": "microsoft.insights/workbooks",
-      "location": "[parameters('location')]",
-      "kind": "shared",
       "tags": "[parameters('resourceTags')]",
-      "name": "[parameters('workbookId')]"
+      "name": "[parameters('workbookId')]",
+      "type": "microsoft.insights/workbooktemplates",
+      "apiVersion": "2020-11-20",
+      "location": "[parameters('location')]",
+      "kind": "shared"
     }
   ],
   "metadata": {
-    "lastUpdated": "2025-09-21T22:13:14Z",
-    "workbookSize": 39687,
-    "description": "ARM Template for deploying Azure Workbook - Sample Dashboard WPNinjas 2025",
     "generatedBy": "Local combine-workbook.ps1 script",
-    "workbookContentHash": "807BC1EECB074B9B3604D4DB89B518FF4277FCCAC0458C3F4322413DCCA9382A"
+    "lastUpdated": "2025-09-22T04:57:00Z",
+    "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025",
+    "workbookContentHash": "807BC1EECB074B9B3604D4DB89B518FF4277FCCAC0458C3F4322413DCCA9382A",
+    "workbookSize": 39687
   },
-  "contentVersion": "1.0.0.0",
-  "variables": {
-    "workbookContentFromFile": "{\r\n  \\\"version\\\": \\\"Notebook/1.0\\\",\r\n  \\\"items\\\": [\r\n    {\r\n      \\\"type\\\": 9,\r\n      \\\"content\\\": {\r\n        \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n        \\\"crossComponentResources\\\": [\r\n          \\\"{LogAnalyticsWorkspaces}\\\"\r\n        ],\r\n        \\\"parameters\\\": [\r\n          {\r\n            \\\"id\\\": \\\"4fe97648-1a49-4fd7-a4a6-20c6a2327bd3\\\",\r\n            \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n            \\\"name\\\": \\\"TimeRange\\\",\r\n            \\\"label\\\": \\\"Time Range\\\",\r\n            \\\"type\\\": 4,\r\n            \\\"isGlobal\\\": true,\r\n            \\\"typeSettings\\\": {\r\n              \\\"selectableValues\\\": [\r\n                {\r\n                  \\\"durationMs\\\": 1800000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 3600000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 14400000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 43200000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 86400000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 172800000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 259200000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 604800000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 1209600000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 2592000000\r\n                }\r\n              ],\r\n              \\\"allowCustom\\\": true\r\n            },\r\n            \\\"timeContext\\\": {\r\n              \\\"durationMs\\\": 86400000\r\n            },\r\n            \\\"value\\\": {\r\n              \\\"durationMs\\\": 604800000\r\n            }\r\n          },\r\n          {\r\n            \\\"id\\\": \\\"e2c82b9c-bcaf-462f-915e-11c773156800\\\",\r\n            \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n            \\\"name\\\": \\\"Subscriptions\\\",\r\n            \\\"type\\\": 6,\r\n            \\\"isRequired\\\": true,\r\n            \\\"multiSelect\\\": true,\r\n            \\\"quote\\\": \\\"'\\\",\r\n            \\\"delimiter\\\": \\\",\\\",\r\n            \\\"typeSettings\\\": {\r\n              \\\"additionalResourceOptions\\\": [\r\n                \\\"value::all\\\"\r\n              ],\r\n              \\\"includeAll\\\": true\r\n            },\r\n            \\\"defaultValue\\\": \\\"value::all\\\",\r\n            \\\"value\\\": [\r\n              \\\"/subscriptions/79e32b40-6dd1-45dc-a9b2-70cd5a110aa8\\\"\r\n            ]\r\n          },\r\n          {\r\n            \\\"id\\\": \\\"38e9a996-2ba5-44e5-a1a6-fcbf670370d2\\\",\r\n            \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n            \\\"name\\\": \\\"LogAnalyticsWorkspaces\\\",\r\n            \\\"label\\\": \\\"Log Analytics Workspaces\\\",\r\n            \\\"type\\\": 5,\r\n            \\\"isRequired\\\": true,\r\n            \\\"multiSelect\\\": true,\r\n            \\\"quote\\\": \\\"'\\\",\r\n            \\\"delimiter\\\": \\\",\\\",\r\n            \\\"query\\\": \\\"resources\\\\\\\\r\\\\\\\\n| where type =~ 'microsoft.operationalinsights/workspaces'\\\\\\\\r\\\\\\\\n| project id\\\",\r\n            \\\"crossComponentResources\\\": [\r\n              \\\"{Subscriptions}\\\"\r\n            ],\r\n            \\\"typeSettings\\\": {\r\n              \\\"resourceTypeFilter\\\": {\r\n                \\\"microsoft.operationalinsights/workspaces\\\": true\r\n              },\r\n              \\\"additionalResourceOptions\\\": [\r\n                \\\"value::all\\\"\r\n              ],\r\n              \\\"showDefault\\\": false\r\n            },\r\n            \\\"defaultValue\\\": \\\"value::all\\\",\r\n            \\\"queryType\\\": 1,\r\n            \\\"resourceType\\\": \\\"microsoft.resourcegraph/resources\\\",\r\n            \\\"value\\\": [\r\n              \\\"value::all\\\"\r\n            ]\r\n          },\r\n          {\r\n            \\\"id\\\": \\\"b52f0933-be39-49be-82e1-7d37262f3670\\\",\r\n            \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n            \\\"name\\\": \\\"OSSelection\\\",\r\n            \\\"label\\\": \\\"Operating System\\\",\r\n            \\\"type\\\": 2,\r\n            \\\"isRequired\\\": true,\r\n            \\\"isGlobal\\\": true,\r\n            \\\"multiSelect\\\": true,\r\n            \\\"quote\\\": \\\"'\\\",\r\n            \\\"delimiter\\\": \\\",\\\",\r\n            \\\"query\\\": \\\"IntuneDevices\\\\\\\\r\\\\\\\\n| distinct OS\\\",\r\n            \\\"crossComponentResources\\\": [\r\n              \\\"{LogAnalyticsWorkspaces}\\\"\r\n            ],\r\n            \\\"typeSettings\\\": {\r\n              \\\"additionalResourceOptions\\\": [\r\n                \\\"value::all\\\"\r\n              ],\r\n              \\\"showDefault\\\": false\r\n            },\r\n            \\\"timeContext\\\": {\r\n              \\\"durationMs\\\": 0\r\n            },\r\n            \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n            \\\"defaultValue\\\": \\\"value::all\\\",\r\n            \\\"queryType\\\": 0,\r\n            \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\",\r\n            \\\"value\\\": [\r\n              \\\"value::all\\\"\r\n            ]\r\n          },\r\n          {\r\n            \\\"id\\\": \\\"1feac0c0-9dcf-476f-a739-1be6bec3020b\\\",\r\n            \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n            \\\"name\\\": \\\"ExtendedDeviceFilter\\\",\r\n            \\\"type\\\": 1,\r\n            \\\"isHiddenWhenLocked\\\": true,\r\n            \\\"timeContext\\\": {\r\n              \\\"durationMs\\\": 0\r\n            },\r\n            \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n            \\\"defaultValue\\\": \\\"| where ManagedBy != \\\\\\\\\\\"MDE\\\\\\\\\\\"\\\",\r\n            \\\"value\\\": \\\"| where ManagedBy != \\\\\\\\\\\"MDE\\\\\\\\\\\"\\\"\r\n          },\r\n          {\r\n            \\\"id\\\": \\\"ef1ffc33-11eb-439e-b47a-599e83f427fa\\\",\r\n            \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n            \\\"name\\\": \\\"LastIntuneDiagnosticsImport\\\",\r\n            \\\"type\\\": 1,\r\n            \\\"isRequired\\\": true,\r\n            \\\"query\\\": \\\"IntuneDevices\\\\\\\\r\\\\\\\\n| where OS in ({OSSelection})\\\\\\\\r\\\\\\\\n{ExtendedDeviceFilter}| extend SwissTime = tostring(format_datetime(TimeGenerated, 'dd.MM.yyyy HH:mm:ss'))\\\\\\\\r\\\\\\\\n| project SwissTime\\\\\\\\r\\\\\\\\n| take 1\\\",\r\n            \\\"crossComponentResources\\\": [\r\n              \\\"{LogAnalyticsWorkspaces}\\\"\r\n            ],\r\n            \\\"isHiddenWhenLocked\\\": true,\r\n            \\\"timeContext\\\": {\r\n              \\\"durationMs\\\": 0\r\n            },\r\n            \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n            \\\"queryType\\\": 0,\r\n            \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\"\r\n          },\r\n          {\r\n            \\\"id\\\": \\\"a139aff3-827b-4783-8090-7da0d7528b4e\\\",\r\n            \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n            \\\"name\\\": \\\"ConsideredActiveDays\\\",\r\n            \\\"type\\\": 4,\r\n            \\\"isRequired\\\": true,\r\n            \\\"isGlobal\\\": true,\r\n            \\\"isHiddenWhenLocked\\\": true,\r\n            \\\"typeSettings\\\": {\r\n              \\\"selectableValues\\\": [\r\n                {\r\n                  \\\"durationMs\\\": 86400000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 259200000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 604800000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 1209600000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 2592000000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 5184000000\r\n                },\r\n                {\r\n                  \\\"durationMs\\\": 7776000000\r\n                }\r\n              ]\r\n            },\r\n            \\\"timeContext\\\": {\r\n              \\\"durationMs\\\": 0\r\n            },\r\n            \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n            \\\"value\\\": {\r\n              \\\"durationMs\\\": 604800000\r\n            }\r\n          },\r\n          {\r\n            \\\"id\\\": \\\"be336a04-057b-4e11-87a4-68d615778b6f\\\",\r\n            \\\"version\\\": \\\"KqlParameterItem/1.0\\\",\r\n            \\\"name\\\": \\\"AzureFunctionVersion\\\",\r\n            \\\"type\\\": 9,\r\n            \\\"isRequired\\\": true,\r\n            \\\"isGlobal\\\": true,\r\n            \\\"multiSelect\\\": true,\r\n            \\\"quote\\\": \\\"'\\\",\r\n            \\\"delimiter\\\": \\\",\\\",\r\n            \\\"query\\\": \\\"let rawData = externaldata(AzureFunctionVersion:string)[   'https://func-lnc-kpidashboard-test-chn-02.azurewebsites.net/api/func-lnc-sampledashboardwpninjas2025-test-chn-01?code=LEgx35VLo9k5xFSZhH0lSMqOC-jvpN4KsNr00SJ2kBENAzFuJYLfLQ==&evaluationType=azurefunctionversion']with(format='multijson');rawData | extend AzureFunctionVersion = tostring(AzureFunctionVersion)\\\",\r\n            \\\"crossComponentResources\\\": [\r\n              \\\"{LogAnalyticsWorkspaces}\\\"\r\n            ],\r\n            \\\"isHiddenWhenLocked\\\": true,\r\n            \\\"timeContext\\\": {\r\n              \\\"durationMs\\\": 0\r\n            },\r\n            \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n            \\\"queryType\\\": 0,\r\n            \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\",\r\n            \\\"value\\\": [\r\n              \\\"1.0.4\\\"\r\n            ]\r\n          }\r\n        ],\r\n        \\\"style\\\": \\\"pills\\\",\r\n        \\\"queryType\\\": 0,\r\n        \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\"\r\n      },\r\n      \\\"name\\\": \\\"parameters - 0\\\"\r\n    },\r\n    {\r\n      \\\"type\\\": 11,\r\n      \\\"content\\\": {\r\n        \\\"version\\\": \\\"LinkItem/1.0\\\",\r\n        \\\"style\\\": \\\"tabs\\\",\r\n        \\\"tabStyle\\\": \\\"bigger\\\",\r\n        \\\"links\\\": [\r\n          {\r\n            \\\"id\\\": \\\"cd561c05-b63a-4087-8069-68c384b226ef\\\",\r\n            \\\"cellValue\\\": \\\"GroupName\\\",\r\n            \\\"linkTarget\\\": \\\"parameter\\\",\r\n            \\\"linkLabel\\\": \\\"Sample Dashboard Overview\\\",\r\n            \\\"subTarget\\\": \\\"SampleDashboardOverview\\\",\r\n            \\\"preText\\\": \\\"KPI Overview\\\",\r\n            \\\"style\\\": \\\"link\\\"\r\n          },\r\n          {\r\n            \\\"id\\\": \\\"673edfdf-bedc-4706-9c3a-c2b1e98fe395\\\",\r\n            \\\"cellValue\\\": \\\"GroupName\\\",\r\n            \\\"linkTarget\\\": \\\"parameter\\\",\r\n            \\\"linkLabel\\\": \\\"Example Tab 1\\\",\r\n            \\\"subTarget\\\": \\\"ExampleTab1\\\",\r\n            \\\"style\\\": \\\"link\\\"\r\n          }\r\n        ]\r\n      },\r\n      \\\"name\\\": \\\"mainnavbar\\\",\r\n      \\\"styleSettings\\\": {\r\n        \\\"margin\\\": \\\"0\\\",\r\n        \\\"padding\\\": \\\"0\\\"\r\n      }\r\n    },\r\n    {\r\n      \\\"type\\\": 12,\r\n      \\\"content\\\": {\r\n        \\\"version\\\": \\\"NotebookGroup/1.0\\\",\r\n        \\\"groupType\\\": \\\"editable\\\",\r\n        \\\"items\\\": [\r\n          {\r\n            \\\"type\\\": 1,\r\n            \\\"content\\\": {\r\n              \\\"json\\\": \\\"<div style=\\\\\\\\\\\"font-family:'Segoe UI', sans-serif; background-color:#ffffff;\\\\\\\\\\\">\\\\\\\\r\\\\\\\\n  <div style=\\\\\\\\\\\"display: flex; justify-content: space-between; align-items: center;\\\\\\\\\\\">\\\\\\\\r\\\\\\\\n    <h2 style=\\\\\\\\\\\"color:#green; font-size:35px;\\\\\\\\\\\">Sample Dashboard WPNinjas 2025</h2>\\\\\\\\r\\\\\\\\n  <img src=\\\\\\\\\\\"https://summit.wpninjas.global/wp-content/uploads/2025/04/Global-NinjaSummit-BANNER.png\\\\\\\\\\\"  \\\\\\\\r\\\\\\\\n       alt=\\\\\\\\\\\"baseVISION Logo\\\\\\\\\\\" \\\\\\\\r\\\\\\\\n       style=\\\\\\\\\\\"background-color: #000; max-height: 200px; padding: 0px;\\\\\\\\\\\" />\\\\\\\\r\\\\\\\\n</div>\\\\\\\\r\\\\\\\\n\\\\\\\\r\\\\\\\\n  \\\\\\\\r\\\\\\\\n  <div style=\\\\\\\\\\\"display:flex; justify-content:space-between;  border-bottom:1px solid #000;\\\\\\\\\\\">\\\\\\\\r\\\\\\\\n    <div style=\\\\\\\\\\\"flex:1; padding:10px;\\\\\\\\\\\">\\\\\\\\r\\\\\\\\n      <h4>🛠 Intune Diagnostics</h4>\\\\\\\\r\\\\\\\\n      <p><strong>Last Import:</strong> <span>{LastIntuneDiagnosticsImport}</span></p>\\\\\\\\r\\\\\\\\n    </div>\\\\\\\\r\\\\\\\\n    <div style=\\\\\\\\\\\"flex:1; padding:10px;\\\\\\\\\\\">\\\\\\\\r\\\\\\\\n      <h4>🔄 Windows Update</h4>\\\\\\\\r\\\\\\\\n      <p><strong>Last Report:</strong> <span>{LastWindowsUpdateReport}</span></p>\\\\\\\\r\\\\\\\\n    </div>\\\\\\\\r\\\\\\\\n    <div style=\\\\\\\\\\\"flex:1; padding:10px;\\\\\\\\\\\">\\\\\\\\r\\\\\\\\n      <h4>⚙️ Versions</h4>\\\\\\\\r\\\\\\\\n      <p><strong>KQL Dashboard:</strong> <span>'1.0.5'</span></p>\\\\\\\\r\\\\\\\\n      <p><strong>Azure Function:</strong> <span>{AzureFunctionVersion}</span></p>\\\\\\\\r\\\\\\\\n    </div>\\\\\\\\r\\\\\\\\n  </div>\\\\\\\\r\\\\\\\\n</div>\\\"\r\n            },\r\n            \\\"name\\\": \\\"text - 3\\\"\r\n          },\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"IntuneDevices\\\\\\\\r\\\\\\\\n| where OS in ({OSSelection})\\\\\\\\r\\\\\\\\n{ExtendedDeviceFilter}| where todatetime(LastContact) {ConsideredActiveDays:value}\\\\\\\\r\\\\\\\\n| summarize UniqueDeviceCount = dcount(DeviceId)\\\",\r\n              \\\"size\\\": 4,\r\n              \\\"title\\\": \\\"Active Devices Intune (Count) - Logs\\\",\r\n              \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n              \\\"queryType\\\": 0,\r\n              \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\",\r\n              \\\"crossComponentResources\\\": [\r\n                \\\"{LogAnalyticsWorkspaces}\\\"\r\n              ],\r\n              \\\"visualization\\\": \\\"stat\\\",\r\n              \\\"statSettings\\\": {\r\n                \\\"valueAggregation\\\": \\\"None\\\",\r\n                \\\"valueTooltipSettings\\\": {\r\n                  \\\"tooltip\\\": \\\"This is how many users you have in Entra ID.\\\"\r\n                },\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"foreground\\\",\r\n                  \\\"heatmapPalette\\\": \\\"greenRed\\\",\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"0\\\",\r\n                      \\\"representation\\\": \\\"Signout\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\"\r\n              }\r\n            },\r\n            \\\"customWidth\\\": \\\"12.5\\\",\r\n            \\\"name\\\": \\\"Active Devices Intune (Count) - Logs\\\",\r\n            \\\"styleSettings\\\": {\r\n              \\\"maxWidth\\\": \\\"12.5\\\"\r\n            }\r\n          },\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"{\\\\\\\\\\\"version\\\\\\\\\\\":\\\\\\\\\\\"MsGraphEndpoint/1.0\\\\\\\\\\\",\\\\\\\\\\\"data\\\\\\\\\\\":null,\\\\\\\\\\\"headers\\\\\\\\\\\":[{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"ConsistencyLevel\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"eventual\\\\\\\\\\\"}],\\\\\\\\\\\"method\\\\\\\\\\\":\\\\\\\\\\\"GET\\\\\\\\\\\",\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"/beta/devicemanagement/managedDevices\\\\\\\\\\\",\\\\\\\\\\\"urlParams\\\\\\\\\\\":[{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"$count\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"true\\\\\\\\\\\"},{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"$filter\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"lastSyncDateTime ge {ConsideredActiveDays:startISO}\\\\\\\\\\\"}],\\\\\\\\\\\"transformers\\\\\\\\\\\":[{\\\\\\\\\\\"type\\\\\\\\\\\":\\\\\\\\\\\"jsonpath\\\\\\\\\\\",\\\\\\\\\\\"settings\\\\\\\\\\\":{\\\\\\\\\\\"tablePath\\\\\\\\\\\":\\\\\\\\\\\"\\\\\\\\\\\",\\\\\\\\\\\"columns\\\\\\\\\\\":[{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$..['@odata.count']\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"Count\\\\\\\\\\\",\\\\\\\\\\\"columnType\\\\\\\\\\\":\\\\\\\\\\\"long\\\\\\\\\\\"}]}}]}\\\",\r\n              \\\"size\\\": 4,\r\n              \\\"title\\\": \\\"Active intune Device (Count) - Graph\\\",\r\n              \\\"exportToExcelOptions\\\": \\\"all\\\",\r\n              \\\"queryType\\\": 14,\r\n              \\\"visualization\\\": \\\"stat\\\",\r\n              \\\"gridSettings\\\": {\r\n                \\\"formatters\\\": [\r\n                  {\r\n                    \\\"columnMatch\\\": \\\"Assigned\\\",\r\n                    \\\"formatter\\\": 0,\r\n                    \\\"formatOptions\\\": {\r\n                      \\\"aggregation\\\": \\\"Count\\\"\r\n                    }\r\n                  }\r\n                ]\r\n              },\r\n              \\\"sortBy\\\": [],\r\n              \\\"tileSettings\\\": {\r\n                \\\"titleContent\\\": {},\r\n                \\\"leftContent\\\": {\r\n                  \\\"columnMatch\\\": \\\"JailBrokenCount\\\",\r\n                  \\\"formatter\\\": 8,\r\n                  \\\"formatOptions\\\": {\r\n                    \\\"min\\\": 0,\r\n                    \\\"max\\\": 1,\r\n                    \\\"palette\\\": \\\"red\\\",\r\n                    \\\"linkTarget\\\": \\\"GenericDetails\\\",\r\n                    \\\"linkIsContextBlade\\\": true\r\n                  }\r\n                },\r\n                \\\"showBorder\\\": true,\r\n                \\\"size\\\": \\\"auto\\\",\r\n                \\\"styleSettings\\\": {\r\n                  \\\"borderStyle\\\": \\\"rounded\\\"\r\n                }\r\n              },\r\n              \\\"statSettings\\\": {\r\n                \\\"valueAggregation\\\": \\\"Count\\\",\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"foreground\\\",\r\n                  \\\"heatmapPalette\\\": \\\"greenRed\\\",\r\n                  \\\"heatmapMin\\\": 0,\r\n                  \\\"heatmapMax\\\": 1,\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"0\\\",\r\n                      \\\"representation\\\": \\\"PersonWithFriend\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\",\r\n                \\\"valueTooltipSettings\\\": {\r\n                  \\\"tooltip\\\": \\\"The number of all Applications which are not assigned.\\\"\r\n                },\r\n                \\\"valueField\\\": \\\"Count\\\"\r\n              }\r\n            },\r\n            \\\"customWidth\\\": \\\"12.5\\\",\r\n            \\\"name\\\": \\\"Active intune Device (Count) - Graph\\\",\r\n            \\\"styleSettings\\\": {\r\n              \\\"maxWidth\\\": \\\"12.5\\\"\r\n            }\r\n          },\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"IntuneDevices\\\\\\\\r\\\\\\\\n| where OS in ({OSSelection})\\\\\\\\r\\\\\\\\n{ExtendedDeviceFilter}| where todatetime(LastContact) {ConsideredActiveDays:value}\\\\\\\\r\\\\\\\\n| summarize \\\\\\\\r\\\\\\\\n    TotalDevices = count(),\\\\\\\\r\\\\\\\\n    CompliantDevices = countif(CompliantState == \\\\\\\\\\\"Compliant\\\\\\\\\\\")\\\\\\\\r\\\\\\\\n| extend CompliancePercentage = (todouble(CompliantDevices) / TotalDevices * 100)\\\\\\\\r\\\\\\\\n| project CompliancePercentage\\\",\r\n              \\\"size\\\": 4,\r\n              \\\"title\\\": \\\"Active Intune Devices Compliance\\\",\r\n              \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n              \\\"queryType\\\": 0,\r\n              \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\",\r\n              \\\"crossComponentResources\\\": [\r\n                \\\"{LogAnalyticsWorkspaces}\\\"\r\n              ],\r\n              \\\"visualization\\\": \\\"stat\\\",\r\n              \\\"statSettings\\\": {\r\n                \\\"valueField\\\": \\\"CompliancePercentage\\\",\r\n                \\\"valueAggregation\\\": \\\"None\\\",\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"background\\\",\r\n                  \\\"heatmapPalette\\\": \\\"redGreen\\\",\r\n                  \\\"heatmapMin\\\": 90,\r\n                  \\\"heatmapMax\\\": 100,\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"sourceColumn\\\": \\\"CompliancePercentage\\\",\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"90\\\",\r\n                      \\\"representation\\\": \\\"success\\\"\r\n                    },\r\n                    {\r\n                      \\\"sourceColumn\\\": \\\"CompliancePercentage\\\",\r\n                      \\\"operator\\\": \\\"<\\\",\r\n                      \\\"thresholdValue\\\": \\\"90\\\",\r\n                      \\\"representation\\\": \\\"3\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"numberFormatSettings\\\": {\r\n                  \\\"unit\\\": 1,\r\n                  \\\"options\\\": {\r\n                    \\\"style\\\": \\\"decimal\\\",\r\n                    \\\"useGrouping\\\": true,\r\n                    \\\"maximumFractionDigits\\\": 2\r\n                  }\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\"\r\n              }\r\n            },\r\n            \\\"customWidth\\\": \\\"12.5\\\",\r\n            \\\"showPin\\\": false,\r\n            \\\"name\\\": \\\"Active Intune Devices Compliance\\\",\r\n            \\\"styleSettings\\\": {\r\n              \\\"maxWidth\\\": \\\"12.5\\\"\r\n            }\r\n          },\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"IntuneDevices\\\\\\\\r\\\\\\\\n| where OS in ({OSSelection})\\\\\\\\r\\\\\\\\n| join kind=inner (\\\\\\\\r\\\\\\\\n    UCClient\\\\\\\\r\\\\\\\\n) on $left.ReferenceId == $right.AzureADDeviceId\\\\\\\\r\\\\\\\\n| summarize \\\\\\\\r\\\\\\\\n    TotalDevices = count(),\\\\\\\\r\\\\\\\\n    CompliantDevices = countif(tostring(OSSecurityUpdateStatus) == \\\\\\\\\\\"Latest\\\\\\\\\\\")\\\\\\\\r\\\\\\\\n| extend CompliancePercentage = case(\\\\\\\\r\\\\\\\\n    TotalDevices == 0, 0.0,\\\\\\\\r\\\\\\\\n    isnan(todouble(CompliantDevices) / TotalDevices * 100), 0.0,\\\\\\\\r\\\\\\\\n    todouble(CompliantDevices) / TotalDevices * 100\\\\\\\\r\\\\\\\\n)\\\\\\\\r\\\\\\\\n| project CompliancePercentage\\\",\r\n              \\\"size\\\": 4,\r\n              \\\"title\\\": \\\"Device OS Update Benchmark\\\",\r\n              \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n              \\\"queryType\\\": 0,\r\n              \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\",\r\n              \\\"crossComponentResources\\\": [\r\n                \\\"{LogAnalyticsWorkspaces}\\\"\r\n              ],\r\n              \\\"visualization\\\": \\\"stat\\\",\r\n              \\\"statSettings\\\": {\r\n                \\\"valueAggregation\\\": \\\"None\\\",\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"background\\\",\r\n                  \\\"heatmapPalette\\\": \\\"greenRed\\\",\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"sourceColumn\\\": \\\"CompliancePercentage\\\",\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"90\\\",\r\n                      \\\"representation\\\": \\\"success\\\"\r\n                    },\r\n                    {\r\n                      \\\"sourceColumn\\\": \\\"CompliancePercentage\\\",\r\n                      \\\"operator\\\": \\\"<\\\",\r\n                      \\\"thresholdValue\\\": \\\"90\\\",\r\n                      \\\"representation\\\": \\\"3\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"numberFormatSettings\\\": {\r\n                  \\\"unit\\\": 1,\r\n                  \\\"options\\\": {\r\n                    \\\"style\\\": \\\"decimal\\\",\r\n                    \\\"useGrouping\\\": true,\r\n                    \\\"maximumFractionDigits\\\": 2\r\n                  }\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\"\r\n              }\r\n            },\r\n            \\\"customWidth\\\": \\\"12.5\\\",\r\n            \\\"name\\\": \\\"Device OS Update Benchmark\\\",\r\n            \\\"styleSettings\\\": {\r\n              \\\"maxWidth\\\": \\\"12.5\\\"\r\n            }\r\n          },\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"// Prepare the subtables\\\\\\\\r\\\\\\\\nlet UCServiceUpdateStatus_Info = UCServiceUpdateStatus | where UpdateCategory == \\\\\\\\\\\"DriverUpdate\\\\\\\\\\\" and ServiceState != \\\\\\\\\\\"Cancelled\\\\\\\\\\\" ;                               \\\\\\\\r\\\\\\\\nlet UCUpdateAlert_Info = UCUpdateAlert | where UpdateCategory == \\\\\\\\\\\"DriverUpdate\\\\\\\\\\\" and AlertStatus == \\\\\\\\\\\"Active\\\\\\\\\\\" ;\\\\\\\\r\\\\\\\\nlet UCClientUpdateStatus_Info = UCClientUpdateStatus | where UpdateCategory == \\\\\\\\\\\"DriverUpdate\\\\\\\\\\\" ;\\\\\\\\r\\\\\\\\nlet UCServiceClientUpdateStatus = UCServiceUpdateStatus_Info | join kind=leftouter (UCClientUpdateStatus_Info) on  AzureADDeviceId, CatalogId; \\\\\\\\r\\\\\\\\nlet UCDriverAlertsWithPolicyId = UCServiceUpdateStatus_Info | join kind=inner(UCUpdateAlert_Info) on  AzureADDeviceId, CatalogId;\\\\\\\\r\\\\\\\\n\\\\\\\\r\\\\\\\\n// Business logic\\\\\\\\r\\\\\\\\nlet AggregateDeviceCounts = UCServiceClientUpdateStatus\\\\\\\\r\\\\\\\\n| summarize \\\\\\\\r\\\\\\\\n    TotalDevices=dcount(AzureADDeviceId),\\\\\\\\r\\\\\\\\n    InstalledCount=dcountif(AzureADDeviceId, ClientState == \\\\\\\\\\\"Installed\\\\\\\\\\\") by PolicyId, CatalogId, UpdateClassification, UpdateDisplayName, DeploymentApprovedTime, UpdateManufacturer, ServiceState, ServiceSubstate, ClientState, ClientSubstate\\\\\\\\r\\\\\\\\n| extend TotalProgress=round((InstalledCount * 1.0/ TotalDevices) * 100, 1);\\\\\\\\r\\\\\\\\n\\\\\\\\r\\\\\\\\nlet AggregateAlertSubTypeCount = UCDriverAlertsWithPolicyId \\\\\\\\r\\\\\\\\n| summarize Alerts=dcount(ErrorCode) by PolicyId, CatalogId, DeploymentId,UpdateManufacturer, UpdateCategory, UpdateClassification, ServiceState, ServiceSubstate;\\\\\\\\r\\\\\\\\n\\\\\\\\r\\\\\\\\n// join for final output\\\\\\\\r\\\\\\\\nAggregateDeviceCounts\\\\\\\\r\\\\\\\\n| join kind=leftouter (AggregateAlertSubTypeCount) on PolicyId,CatalogId\\\\\\\\r\\\\\\\\n| summarize by PolicyId, CatalogId, DeploymentId,UpdateDisplayName, DeploymentApprovedTime, UpdateManufacturer, UpdateClassification, TotalProgress, Alerts, TotalDevices, UpdateCategory, ServiceState, ServiceSubstate, ClientState, ClientSubstate\\\\\\\\r\\\\\\\\n| summarize \\\\\\\\r\\\\\\\\n    CompliantDrivers = countif(todouble(TotalProgress) >= 90),\\\\\\\\r\\\\\\\\n    TotalDrivers = count()\\\\\\\\r\\\\\\\\n| extend CompliancePercentage = (todouble(CompliantDrivers) / todouble(TotalDrivers) * 100)\\\\\\\\r\\\\\\\\n| project CompliancePercentage\\\",\r\n              \\\"size\\\": 4,\r\n              \\\"title\\\": \\\"Device Driver Update Benchmark\\\",\r\n              \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n              \\\"queryType\\\": 0,\r\n              \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\",\r\n              \\\"crossComponentResources\\\": [\r\n                \\\"{LogAnalyticsWorkspaces}\\\"\r\n              ],\r\n              \\\"visualization\\\": \\\"stat\\\",\r\n              \\\"statSettings\\\": {\r\n                \\\"valueAggregation\\\": \\\"None\\\",\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"background\\\",\r\n                  \\\"heatmapPalette\\\": \\\"greenRed\\\",\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"sourceColumn\\\": \\\"CompliancePercentage\\\",\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"90\\\",\r\n                      \\\"representation\\\": \\\"success\\\"\r\n                    },\r\n                    {\r\n                      \\\"sourceColumn\\\": \\\"CompliancePercentage\\\",\r\n                      \\\"operator\\\": \\\"<\\\",\r\n                      \\\"thresholdValue\\\": \\\"90\\\",\r\n                      \\\"representation\\\": \\\"3\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"numberFormatSettings\\\": {\r\n                  \\\"unit\\\": 1,\r\n                  \\\"options\\\": {\r\n                    \\\"style\\\": \\\"decimal\\\",\r\n                    \\\"useGrouping\\\": true,\r\n                    \\\"maximumFractionDigits\\\": 2\r\n                  }\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\"\r\n              }\r\n            },\r\n            \\\"customWidth\\\": \\\"12.5\\\",\r\n            \\\"name\\\": \\\"Device Driver Update Benchmark\\\",\r\n            \\\"styleSettings\\\": {\r\n              \\\"maxWidth\\\": \\\"12.5\\\"\r\n            }\r\n          },\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"let rawData = externaldata(ApplicationId:string,  DisplayName:string, Platform_loc:string, FailedDevicePercentage:real, FailedDeviceCount:int, FailedUserCount:int, InstalledDeviceCount:int)\\\\\\\\r\\\\\\\\n[\\\\\\\\r\\\\\\\\n    'https://func-frqeizmvascwy.azurewebsites.net/api/kqldashboard-prod-01?code=5T4vhf8i4mVTAG19OLqUG2C8pYSz95YBi46t-yaV18CwAzFus4coOQ==&evaluationType=deviceManagement_reports_getAppsInstallSummaryReport'\\\\\\\\r\\\\\\\\n]\\\\\\\\r\\\\\\\\nwith(format='multijson');\\\\\\\\r\\\\\\\\n\\\\\\\\r\\\\\\\\nrawData\\\\\\\\r\\\\\\\\n| where Platform_loc in ({OSSelection})\\\\\\\\r\\\\\\\\n| summarize \\\\\\\\r\\\\\\\\n    CompliantDrivers = countif(todouble(FailedDevicePercentage) < 10),\\\\\\\\r\\\\\\\\n    TotalDrivers = count()\\\\\\\\r\\\\\\\\n| extend CompliancePercentage = (todouble(CompliantDrivers) / todouble(TotalDrivers) * 100)\\\\\\\\r\\\\\\\\n| project CompliancePercentage\\\",\r\n              \\\"size\\\": 4,\r\n              \\\"title\\\": \\\"Device Application Installation Benchmark\\\",\r\n              \\\"timeContextFromParameter\\\": \\\"TimeRange\\\",\r\n              \\\"queryType\\\": 0,\r\n              \\\"resourceType\\\": \\\"microsoft.operationalinsights/workspaces\\\",\r\n              \\\"crossComponentResources\\\": [\r\n                \\\"{LogAnalyticsWorkspaces}\\\"\r\n              ],\r\n              \\\"visualization\\\": \\\"stat\\\",\r\n              \\\"statSettings\\\": {\r\n                \\\"valueAggregation\\\": \\\"None\\\",\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"background\\\",\r\n                  \\\"heatmapPalette\\\": \\\"greenRed\\\",\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"sourceColumn\\\": \\\"CompliancePercentage\\\",\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"90\\\",\r\n                      \\\"representation\\\": \\\"success\\\"\r\n                    },\r\n                    {\r\n                      \\\"sourceColumn\\\": \\\"CompliancePercentage\\\",\r\n                      \\\"operator\\\": \\\"<\\\",\r\n                      \\\"thresholdValue\\\": \\\"90\\\",\r\n                      \\\"representation\\\": \\\"3\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"numberFormatSettings\\\": {\r\n                  \\\"unit\\\": 1,\r\n                  \\\"options\\\": {\r\n                    \\\"style\\\": \\\"decimal\\\",\r\n                    \\\"useGrouping\\\": true,\r\n                    \\\"maximumFractionDigits\\\": 2\r\n                  }\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\"\r\n              }\r\n            },\r\n            \\\"customWidth\\\": \\\"12.5\\\",\r\n            \\\"name\\\": \\\"Device Application Installation Benchmark\\\",\r\n            \\\"styleSettings\\\": {\r\n              \\\"maxWidth\\\": \\\"12.5\\\"\r\n            }\r\n          },\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"{\\\\\\\\\\\"version\\\\\\\\\\\":\\\\\\\\\\\"MsGraphEndpoint/1.0\\\\\\\\\\\",\\\\\\\\\\\"data\\\\\\\\\\\":null,\\\\\\\\\\\"headers\\\\\\\\\\\":[{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"ConsistencyLevel\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"eventual\\\\\\\\\\\"}],\\\\\\\\\\\"method\\\\\\\\\\\":\\\\\\\\\\\"GET\\\\\\\\\\\",\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"/beta/users\\\\\\\\\\\",\\\\\\\\\\\"urlParams\\\\\\\\\\\":[{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"$count\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"true\\\\\\\\\\\"}],\\\\\\\\\\\"transformers\\\\\\\\\\\":[{\\\\\\\\\\\"type\\\\\\\\\\\":\\\\\\\\\\\"jsonpath\\\\\\\\\\\",\\\\\\\\\\\"settings\\\\\\\\\\\":{\\\\\\\\\\\"tablePath\\\\\\\\\\\":\\\\\\\\\\\"\\\\\\\\\\\",\\\\\\\\\\\"columns\\\\\\\\\\\":[{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$..['@odata.count']\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"Count\\\\\\\\\\\",\\\\\\\\\\\"columnType\\\\\\\\\\\":\\\\\\\\\\\"long\\\\\\\\\\\"}]}}]}\\\",\r\n              \\\"size\\\": 4,\r\n              \\\"title\\\": \\\"All Entra ID Users - Graph\\\",\r\n              \\\"exportToExcelOptions\\\": \\\"all\\\",\r\n              \\\"queryType\\\": 14,\r\n              \\\"visualization\\\": \\\"stat\\\",\r\n              \\\"gridSettings\\\": {\r\n                \\\"formatters\\\": [\r\n                  {\r\n                    \\\"columnMatch\\\": \\\"Assigned\\\",\r\n                    \\\"formatter\\\": 0,\r\n                    \\\"formatOptions\\\": {\r\n                      \\\"aggregation\\\": \\\"Count\\\"\r\n                    }\r\n                  }\r\n                ]\r\n              },\r\n              \\\"sortBy\\\": [],\r\n              \\\"tileSettings\\\": {\r\n                \\\"titleContent\\\": {},\r\n                \\\"leftContent\\\": {\r\n                  \\\"columnMatch\\\": \\\"JailBrokenCount\\\",\r\n                  \\\"formatter\\\": 8,\r\n                  \\\"formatOptions\\\": {\r\n                    \\\"min\\\": 0,\r\n                    \\\"max\\\": 1,\r\n                    \\\"palette\\\": \\\"red\\\",\r\n                    \\\"linkTarget\\\": \\\"GenericDetails\\\",\r\n                    \\\"linkIsContextBlade\\\": true\r\n                  }\r\n                },\r\n                \\\"showBorder\\\": true,\r\n                \\\"size\\\": \\\"auto\\\",\r\n                \\\"styleSettings\\\": {\r\n                  \\\"borderStyle\\\": \\\"rounded\\\"\r\n                }\r\n              },\r\n              \\\"statSettings\\\": {\r\n                \\\"valueAggregation\\\": \\\"Count\\\",\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"foreground\\\",\r\n                  \\\"heatmapPalette\\\": \\\"greenRed\\\",\r\n                  \\\"heatmapMin\\\": 0,\r\n                  \\\"heatmapMax\\\": 1,\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"0\\\",\r\n                      \\\"representation\\\": \\\"PersonWithFriend\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\",\r\n                \\\"valueTooltipSettings\\\": {\r\n                  \\\"tooltip\\\": \\\"The number of all Applications which are not assigned.\\\"\r\n                },\r\n                \\\"valueField\\\": \\\"Count\\\"\r\n              }\r\n            },\r\n            \\\"customWidth\\\": \\\"12.5\\\",\r\n            \\\"name\\\": \\\"All Entra ID Users - Graph\\\",\r\n            \\\"styleSettings\\\": {\r\n              \\\"maxWidth\\\": \\\"12.5\\\"\r\n            }\r\n          },\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"{\\\\\\\\\\\"version\\\\\\\\\\\":\\\\\\\\\\\"MsGraphEndpoint/1.0\\\\\\\\\\\",\\\\\\\\\\\"data\\\\\\\\\\\":null,\\\\\\\\\\\"headers\\\\\\\\\\\":[{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"ConsistencyLevel\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"eventual\\\\\\\\\\\"}],\\\\\\\\\\\"method\\\\\\\\\\\":\\\\\\\\\\\"GET\\\\\\\\\\\",\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"/beta/users\\\\\\\\\\\",\\\\\\\\\\\"urlParams\\\\\\\\\\\":[{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"$filter\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"userType eq 'Member'\\\\\\\\\\\"},{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"$count\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"true\\\\\\\\\\\"}],\\\\\\\\\\\"transformers\\\\\\\\\\\":[{\\\\\\\\\\\"type\\\\\\\\\\\":\\\\\\\\\\\"jsonpath\\\\\\\\\\\",\\\\\\\\\\\"settings\\\\\\\\\\\":{\\\\\\\\\\\"tablePath\\\\\\\\\\\":\\\\\\\\\\\"\\\\\\\\\\\",\\\\\\\\\\\"columns\\\\\\\\\\\":[{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$..['@odata.count']\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"Count\\\\\\\\\\\",\\\\\\\\\\\"columnType\\\\\\\\\\\":\\\\\\\\\\\"long\\\\\\\\\\\"}]}}]}\\\",\r\n              \\\"size\\\": 4,\r\n              \\\"title\\\": \\\"Active Entra ID Members - Graph\\\",\r\n              \\\"exportToExcelOptions\\\": \\\"all\\\",\r\n              \\\"queryType\\\": 14,\r\n              \\\"visualization\\\": \\\"stat\\\",\r\n              \\\"gridSettings\\\": {\r\n                \\\"formatters\\\": [\r\n                  {\r\n                    \\\"columnMatch\\\": \\\"Assigned\\\",\r\n                    \\\"formatter\\\": 0,\r\n                    \\\"formatOptions\\\": {\r\n                      \\\"aggregation\\\": \\\"Count\\\"\r\n                    }\r\n                  }\r\n                ]\r\n              },\r\n              \\\"sortBy\\\": [],\r\n              \\\"tileSettings\\\": {\r\n                \\\"titleContent\\\": {},\r\n                \\\"leftContent\\\": {\r\n                  \\\"columnMatch\\\": \\\"JailBrokenCount\\\",\r\n                  \\\"formatter\\\": 8,\r\n                  \\\"formatOptions\\\": {\r\n                    \\\"min\\\": 0,\r\n                    \\\"max\\\": 1,\r\n                    \\\"palette\\\": \\\"red\\\",\r\n                    \\\"linkTarget\\\": \\\"GenericDetails\\\",\r\n                    \\\"linkIsContextBlade\\\": true\r\n                  }\r\n                },\r\n                \\\"showBorder\\\": true,\r\n                \\\"size\\\": \\\"auto\\\",\r\n                \\\"styleSettings\\\": {\r\n                  \\\"borderStyle\\\": \\\"rounded\\\"\r\n                }\r\n              },\r\n              \\\"statSettings\\\": {\r\n                \\\"valueAggregation\\\": \\\"Count\\\",\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"foreground\\\",\r\n                  \\\"heatmapPalette\\\": \\\"greenRed\\\",\r\n                  \\\"heatmapMin\\\": 0,\r\n                  \\\"heatmapMax\\\": 1,\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"0\\\",\r\n                      \\\"representation\\\": \\\"PersonWithFriend\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\",\r\n                \\\"valueTooltipSettings\\\": {\r\n                  \\\"tooltip\\\": \\\"The number of all Applications which are not assigned.\\\"\r\n                },\r\n                \\\"valueField\\\": \\\"Count\\\"\r\n              }\r\n            },\r\n            \\\"customWidth\\\": \\\"12.5\\\",\r\n            \\\"name\\\": \\\"Active Entra ID Members - Graph\\\",\r\n            \\\"styleSettings\\\": {\r\n              \\\"maxWidth\\\": \\\"12.5\\\"\r\n            }\r\n          }\r\n        ]\r\n      },\r\n      \\\"conditionalVisibility\\\": {\r\n        \\\"parameterName\\\": \\\"GroupName\\\",\r\n        \\\"comparison\\\": \\\"isEqualTo\\\",\r\n        \\\"value\\\": \\\"SampleDashboardOverview\\\"\r\n      },\r\n      \\\"name\\\": \\\"GroupName KPI Overview\\\"\r\n    },\r\n    {\r\n      \\\"type\\\": 12,\r\n      \\\"content\\\": {\r\n        \\\"version\\\": \\\"NotebookGroup/1.0\\\",\r\n        \\\"groupType\\\": \\\"editable\\\",\r\n        \\\"items\\\": [\r\n          {\r\n            \\\"type\\\": 3,\r\n            \\\"content\\\": {\r\n              \\\"version\\\": \\\"KqlItem/1.0\\\",\r\n              \\\"query\\\": \\\"{\\\\\\\\\\\"version\\\\\\\\\\\":\\\\\\\\\\\"MsGraphEndpoint/1.0\\\\\\\\\\\",\\\\\\\\\\\"data\\\\\\\\\\\":null,\\\\\\\\\\\"headers\\\\\\\\\\\":[{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"ConsitencyLevel\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"eventual\\\\\\\\\\\"}],\\\\\\\\\\\"method\\\\\\\\\\\":\\\\\\\\\\\"GET\\\\\\\\\\\",\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"/beta/deviceManagement/managedDevices\\\\\\\\\\\",\\\\\\\\\\\"urlParams\\\\\\\\\\\":[{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"$filter\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"lastSyncDateTime ge {ConsideredActiveDays:startISO}\\\\\\\\\\\"},{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"$select\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"id,deviceName,userPrincipalName,lastSyncDateTime,complianceState,operatingSystem,ownerType,Id\\\\\\\\\\\"},{\\\\\\\\\\\"key\\\\\\\\\\\":\\\\\\\\\\\"$top\\\\\\\\\\\",\\\\\\\\\\\"value\\\\\\\\\\\":\\\\\\\\\\\"999\\\\\\\\\\\"}],\\\\\\\\\\\"transformers\\\\\\\\\\\":[{\\\\\\\\\\\"type\\\\\\\\\\\":\\\\\\\\\\\"jsonpath\\\\\\\\\\\",\\\\\\\\\\\"settings\\\\\\\\\\\":{\\\\\\\\\\\"tablePath\\\\\\\\\\\":\\\\\\\\\\\"$.value\\\\\\\\\\\",\\\\\\\\\\\"columns\\\\\\\\\\\":[{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$.id\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"Device Name\\\\\\\\\\\",\\\\\\\\\\\"columnType\\\\\\\\\\\":\\\\\\\\\\\"string\\\\\\\\\\\"},{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$.lastSyncDateTime\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"Last_Sync_Date_Time\\\\\\\\\\\",\\\\\\\\\\\"columnType\\\\\\\\\\\":\\\\\\\\\\\"datetime\\\\\\\\\\\"},{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$.complianceState\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"Compliance_State\\\\\\\\\\\",\\\\\\\\\\\"columnType\\\\\\\\\\\":\\\\\\\\\\\"string\\\\\\\\\\\"},{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$.operatingSystem\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"Operating_System\\\\\\\\\\\",\\\\\\\\\\\"columnType\\\\\\\\\\\":\\\\\\\\\\\"string\\\\\\\\\\\"},{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$.ownerType\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"Owner_Type\\\\\\\\\\\",\\\\\\\\\\\"columnType\\\\\\\\\\\":\\\\\\\\\\\"string\\\\\\\\\\\"},{\\\\\\\\\\\"path\\\\\\\\\\\":\\\\\\\\\\\"$.id\\\\\\\\\\\",\\\\\\\\\\\"columnid\\\\\\\\\\\":\\\\\\\\\\\"ID\\\\\\\\\\\"}]}}]}\\\",\r\n              \\\"size\\\": 0,\r\n              \\\"title\\\": \\\"Active Intune Devices - Graph\\\",\r\n              \\\"showExportToExcel\\\": true,\r\n              \\\"queryType\\\": 14,\r\n              \\\"gridSettings\\\": {\r\n                \\\"formatters\\\": [\r\n                  {\r\n                    \\\"columnMatch\\\": \\\"Device_Name\\\",\r\n                    \\\"formatter\\\": 1,\r\n                    \\\"formatOptions\\\": {\r\n                      \\\"workbookContext\\\": {\r\n                        \\\"componentIdSource\\\": \\\"workbook\\\",\r\n                        \\\"resourceIdsSource\\\": \\\"workbook\\\",\r\n                        \\\"templateIdSource\\\": \\\"cell\\\",\r\n                        \\\"typeSource\\\": \\\"workbook\\\",\r\n                        \\\"gallerySource\\\": \\\"workbook\\\",\r\n                        \\\"locationSource\\\": \\\"default\\\",\r\n                        \\\"viewerMode\\\": true\r\n                      }\r\n                    }\r\n                  },\r\n                  {\r\n                    \\\"columnMatch\\\": \\\"Compliance_State\\\",\r\n                    \\\"formatter\\\": 18,\r\n                    \\\"formatOptions\\\": {\r\n                      \\\"thresholdsOptions\\\": \\\"icons\\\",\r\n                      \\\"thresholdsGrid\\\": [\r\n                        {\r\n                          \\\"operator\\\": \\\"==\\\",\r\n                          \\\"thresholdValue\\\": \\\"noncompliant\\\",\r\n                          \\\"representation\\\": \\\"4\\\",\r\n                          \\\"text\\\": \\\"{0}{1}\\\"\r\n                        },\r\n                        {\r\n                          \\\"operator\\\": \\\"Default\\\",\r\n                          \\\"thresholdValue\\\": null,\r\n                          \\\"representation\\\": \\\"success\\\",\r\n                          \\\"text\\\": \\\"{0}{1}\\\"\r\n                        }\r\n                      ]\r\n                    }\r\n                  },\r\n                  {\r\n                    \\\"columnMatch\\\": \\\"ID\\\",\r\n                    \\\"formatter\\\": 5\r\n                  }\r\n                ],\r\n                \\\"rowLimit\\\": 1000,\r\n                \\\"filter\\\": true,\r\n                \\\"labelSettings\\\": [\r\n                  {\r\n                    \\\"columnId\\\": \\\"Last_Sync_Date_Time\\\",\r\n                    \\\"label\\\": \\\"Last Sync Date Time\\\"\r\n                  },\r\n                  {\r\n                    \\\"columnId\\\": \\\"Compliance_State\\\",\r\n                    \\\"label\\\": \\\"Compliance State\\\"\r\n                  },\r\n                  {\r\n                    \\\"columnId\\\": \\\"Operating_System\\\",\r\n                    \\\"label\\\": \\\"Operating System\\\"\r\n                  },\r\n                  {\r\n                    \\\"columnId\\\": \\\"Owner_Type\\\",\r\n                    \\\"label\\\": \\\"Owner Type\\\"\r\n                  }\r\n                ]\r\n              },\r\n              \\\"sortBy\\\": [],\r\n              \\\"tileSettings\\\": {\r\n                \\\"titleContent\\\": {},\r\n                \\\"leftContent\\\": {\r\n                  \\\"columnMatch\\\": \\\"JailBrokenCount\\\",\r\n                  \\\"formatter\\\": 8,\r\n                  \\\"formatOptions\\\": {\r\n                    \\\"min\\\": 0,\r\n                    \\\"max\\\": 1,\r\n                    \\\"palette\\\": \\\"red\\\",\r\n                    \\\"linkTarget\\\": \\\"GenericDetails\\\",\r\n                    \\\"linkIsContextBlade\\\": true\r\n                  }\r\n                },\r\n                \\\"showBorder\\\": true,\r\n                \\\"size\\\": \\\"auto\\\",\r\n                \\\"styleSettings\\\": {\r\n                  \\\"borderStyle\\\": \\\"rounded\\\"\r\n                }\r\n              },\r\n              \\\"statSettings\\\": {\r\n                \\\"valueAggregation\\\": \\\"Count\\\",\r\n                \\\"colorSettings\\\": {\r\n                  \\\"type\\\": \\\"static\\\",\r\n                  \\\"mode\\\": \\\"foreground\\\",\r\n                  \\\"heatmapPalette\\\": \\\"greenRed\\\",\r\n                  \\\"heatmapMin\\\": 0,\r\n                  \\\"heatmapMax\\\": 1,\r\n                  \\\"thresholdsGrid\\\": []\r\n                },\r\n                \\\"iconSettings\\\": {\r\n                  \\\"thresholdsGrid\\\": [\r\n                    {\r\n                      \\\"operator\\\": \\\">=\\\",\r\n                      \\\"thresholdValue\\\": \\\"0\\\",\r\n                      \\\"representation\\\": \\\"PersonWithFriend\\\"\r\n                    }\r\n                  ]\r\n                },\r\n                \\\"tagText\\\": \\\"\\\",\r\n                \\\"valueFontStyle\\\": \\\"auto\\\",\r\n                \\\"valueTooltipSettings\\\": {\r\n                  \\\"tooltip\\\": \\\"The number of all Applications which are not assigned.\\\"\r\n                },\r\n                \\\"valueField\\\": \\\"Count\\\"\r\n              }\r\n            },\r\n            \\\"name\\\": \\\"Active Intune Devices - Graph\\\"\r\n          }\r\n        ]\r\n      },\r\n      \\\"conditionalVisibility\\\": {\r\n        \\\"parameterName\\\": \\\"GroupName\\\",\r\n        \\\"comparison\\\": \\\"isEqualTo\\\",\r\n        \\\"value\\\": \\\"ExampleTab1\\\"\r\n      },\r\n      \\\"customWidth\\\": \\\"50\\\",\r\n      \\\"name\\\": \\\"group - 3\\\"\r\n    }\r\n  ],\r\n  \\\"fallbackResourceIds\\\": [\r\n    \\\"azure monitor\\\"\r\n  ],\r\n  \\\"fromTemplateId\\\": \\\"ArmTemplates-/subscriptions/79e32b40-6dd1-45dc-a9b2-70cd5a110aa8/resourceGroups/rg-wb-chb-kql-kpidashboard-prod-01/providers/microsoft.insights/workbooktemplates/f144f607-a85a-4724-a1bb-24477c1294cf\\\",\r\n  \\\"$schema\\\": \\\"https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json\\\"\r\n}"
-  },
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "variables": {},
   "parameters": {
+    "workbookId": {
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook template instance"
+      },
+      "type": "string"
+    },
+    "resourceTags": {
+      "defaultValue": {
+        "Environment": "Demo",
+        "CreatedBy": "ARM Template",
+        "Project": "Azure-Workbook-Deployment-Demo"
+      },
+      "metadata": {
+        "description": "Tags to apply to the workbook resource"
+      },
+      "type": "object"
+    },
     "workbookDisplayName": {
       "defaultValue": "Sample Dashboard WPNinjas 2025",
       "metadata": {
-        "description": "The friendly name for the workbook that is used in the Gallery or Saved List."
+        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
+      },
+      "type": "string"
+    },
+    "templateName": {
+      "defaultValue": "A Workbook Template",
+      "metadata": {
+        "description": "The name for the workbook template in the gallery."
+      },
+      "type": "string"
+    },
+    "templateCategory": {
+      "defaultValue": "Deployed Templates",
+      "metadata": {
+        "description": "The category for the workbook template in the gallery."
       },
       "type": "string"
     },
@@ -56,38 +1014,21 @@
         "description": "Location for all resources."
       },
       "type": "string"
-    },
-    "workbookSourceId": {
-      "defaultValue": "azure monitor",
-      "metadata": {
-        "description": "The id of resource instance to which the workbook will be associated"
-      },
+    }
+  },
+  "outputs": {
+    "workbookTemplateName": {
+      "value": "[parameters('workbookDisplayName')]",
       "type": "string"
     },
-    "workbookType": {
-      "defaultValue": "workbook",
-      "metadata": {
-        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc."
-      },
+    "workbookTemplateId": {
+      "value": "[resourceId('microsoft.insights/workbooktemplates', parameters('workbookId'))]",
       "type": "string"
     },
-    "resourceTags": {
-      "defaultValue": {
-        "CreatedBy": "ARM Template",
-        "Environment": "Demo",
-        "Project": "Azure-Workbook-Deployment-Demo"
-      },
-      "metadata": {
-        "description": "Tags to apply to the workbook resource"
-      },
-      "type": "object"
-    },
-    "workbookId": {
-      "defaultValue": "[newGuid()]",
-      "metadata": {
-        "description": "The unique guid for this workbook instance"
-      },
+    "workbookContentHash": {
+      "value": "807BC1EECB074B9B3604D4DB89B518FF4277FCCAC0458C3F4322413DCCA9382A",
       "type": "string"
     }
-  }
+  },
+  "contentVersion": "1.0.0.0"
 }

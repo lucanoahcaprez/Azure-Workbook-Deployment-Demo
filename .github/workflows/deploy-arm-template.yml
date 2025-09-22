@@ -2,34 +2,34 @@ name: Deploy Azure Workbook
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'demo-armtemplate-1.json'
-      - '.github/workflows/deploy-arm-template.yml'
+      - "demo-armtemplate-1.json"
+      - ".github/workflows/deploy-arm-template.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'demo-armtemplate-1.json'
-      - 'demo-workbook-1.json'
-      - '.github/workflows/deploy-arm-template.yml'
-      - '.github/workflows/combine-workbook-into-arm.yml'
+      - "demo-armtemplate-1.json"
+      - "demo-workbook-1.json"
+      - ".github/workflows/deploy-arm-template.yml"
+      - ".github/workflows/combine-workbook-into-arm.yml"
   workflow_dispatch:
     inputs:
       resourceGroupName:
-        description: 'Resource Group Name'
+        description: "Resource Group Name"
         required: true
-        default: 'rg-azure-workbook-demo'
+        default: "rg-azure-workbook-demo"
       location:
-        description: 'Azure Region'
+        description: "Azure Region"
         required: true
-        default: 'West Europe'
+        default: "West Europe"
         type: choice
         options:
-        - 'West Europe'
-        - 'East US'
-        - 'East US 2'
-        - 'West US 2'
-        - 'Central US'
+          - "West Europe"
+          - "East US"
+          - "East US 2"
+          - "West US 2"
+          - "Central US"
 
 env:
   AZURE_RESOURCE_GROUP: ${{ github.event.inputs.resourceGroupName || 'rg-azure-workbook-demo' }}
@@ -44,26 +44,26 @@ jobs:
     runs-on: ubuntu-latest
     name: Validate ARM Template
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Validate ARM Template
-      uses: azure/arm-deploy@v1
-      with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
-        template: ./demo-armtemplate-1.json
-        deploymentMode: Validate
-        parameters: >
-          workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD"
-          location="${{ env.AZURE_LOCATION }}"
+      - name: Validate ARM Template
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
+          template: ./demo-armtemplate-1.json
+          deploymentMode: Validate
+          parameters: >
+            workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD"
+            location="${{ env.AZURE_LOCATION }}"
 
   deploy:
     runs-on: ubuntu-latest
@@ -72,53 +72,53 @@ jobs:
     name: Deploy Azure Workbook
     environment: production
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Create Resource Group
-      run: |
-        az group create \
-          --name ${{ env.AZURE_RESOURCE_GROUP }} \
-          --location "${{ env.AZURE_LOCATION }}" \
-          --tags Environment=Demo Project=Azure-Workbook-Deployment-Demo CreatedBy=GitHub-Actions
+      - name: Create Resource Group
+        run: |
+          az group create \
+            --name ${{ env.AZURE_RESOURCE_GROUP }} \
+            --location "${{ env.AZURE_LOCATION }}" \
+            --tags Environment=Demo Project=Azure-Workbook-Deployment-Demo CreatedBy=GitHub-Actions
 
-    - name: Deploy ARM Template
-      uses: azure/arm-deploy@v1
-      id: deploy
-      with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
-        template: ./demo-armtemplate-1.json
-        deploymentName: 'workbook-deployment-${{ github.run_number }}'
-        parameters: >
-          workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD"
-          location="${{ env.AZURE_LOCATION }}"
-          resourceTags={
-            "Environment": "Demo",
-            "Project": "Azure-Workbook-Deployment-Demo",
-            "CreatedBy": "GitHub-Actions",
-            "DeploymentId": "${{ github.run_number }}",
-            "CommitSha": "${{ github.sha }}"
-          }
+      - name: Deploy ARM Template
+        uses: azure/arm-deploy@v1
+        id: deploy
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
+          template: ./demo-armtemplate-1.json
+          deploymentName: "workbook-deployment-${{ github.run_number }}"
+          parameters: >
+            workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD"
+            location="${{ env.AZURE_LOCATION }}"
+            resourceTags={
+              "Environment": "Demo",
+              "Project": "Azure-Workbook-Deployment-Demo",
+              "CreatedBy": "GitHub-Actions",
+              "DeploymentId": "${{ github.run_number }}",
+              "CommitSha": "${{ github.sha }}"
+            }
 
-    - name: Output Deployment Information
-      run: |
-        echo "### 🚀 Deployment Successful! ###" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Workbook Name:** ${{ steps.deploy.outputs.workbookName }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Workbook ID:** ${{ steps.deploy.outputs.workbookId }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Resource Group:** ${{ env.AZURE_RESOURCE_GROUP }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Location:** ${{ env.AZURE_LOCATION }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Deployment Name:** workbook-deployment-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "🔗 [View Workbook in Azure Portal](https://portal.azure.com/#blade/AppInsightsExtension/UsageNotebookBlade/ComponentId/azure%20monitor/ConfigurationId/${{ steps.deploy.outputs.workbookId }}/Type/workbook)" >> $GITHUB_STEP_SUMMARY
+      - name: Output Deployment Information
+        run: |
+          echo "### 🚀 Deployment Successful! ###" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workbook Name:** ${{ steps.deploy.outputs.workbookName }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Workbook ID:** ${{ steps.deploy.outputs.workbookId }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Resource Group:** ${{ env.AZURE_RESOURCE_GROUP }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Location:** ${{ env.AZURE_LOCATION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment Name:** workbook-deployment-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Workbook in Azure Portal](https://portal.azure.com/#blade/AppInsightsExtension/UsageNotebookBlade/ComponentId/azure%20monitor/ConfigurationId/${{ steps.deploy.outputs.workbookId }}/Type/workbook)" >> $GITHUB_STEP_SUMMARY
 
   test-deployment:
     runs-on: ubuntu-latest
@@ -126,33 +126,33 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     name: Test Deployment
     steps:
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Verify Workbook Deployment
-      run: |
-        echo "Checking if workbook was deployed successfully..."
-        WORKBOOK_COUNT=$(az monitor app-insights workbook list \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --query "length([?contains(displayName, 'Sample Dashboard WPNinjas 2025')])" \
-          --output tsv)
-        
-        if [ "$WORKBOOK_COUNT" -gt 0 ]; then
-          echo "✅ Workbook deployment verified successfully!"
-          echo "Found $WORKBOOK_COUNT workbook(s) matching the criteria."
-        else
-          echo "❌ Workbook verification failed!"
-          echo "No workbooks found with the expected name."
-          exit 1
-        fi
+      - name: Verify Workbook Deployment
+        run: |
+          echo "Checking if workbook was deployed successfully..."
+          WORKBOOK_COUNT=$(az monitor app-insights workbook list \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --query "length([?contains(displayName, 'Sample Dashboard WPNinjas 2025')])" \
+            --output tsv)
 
-    - name: List Deployed Resources
-      run: |
-        echo "📋 Resources in Resource Group:"
-        az resource list \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --output table
+          if [ "$WORKBOOK_COUNT" -gt 0 ]; then
+            echo "✅ Workbook deployment verified successfully!"
+            echo "Found $WORKBOOK_COUNT workbook(s) matching the criteria."
+          else
+            echo "❌ Workbook verification failed!"
+            echo "No workbooks found with the expected name."
+            exit 1
+          fi
+
+      - name: List Deployed Resources
+        run: |
+          echo "📋 Resources in Resource Group:"
+          az resource list \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --output table

@@ -36,20 +36,21 @@ try {
     Write-Host "   Hash: $contentHash" -ForegroundColor Green
     
     # Escape content for JSON embedding
-    Write-Host "🔧 Escaping content for ARM template..." -ForegroundColor Yellow
-    $escapedContent = $workbookJson -replace '\\', '\\\\' -replace '"', '\"'
+    Write-Host "🔧 Preparing workbook content for template data..." -ForegroundColor Yellow
+    # For templateData, we need the actual JSON object, not escaped string
+    $templateDataContent = $workbookContent
     
     # Generate timestamp
     $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
     
     # Create ARM template content
-    Write-Host "🏗️  Generating ARM template..." -ForegroundColor Yellow
+    Write-Host "🏗️  Generating ARM template for workbook template..." -ForegroundColor Yellow
     
     $armTemplate = @{
         '$schema' = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
         contentVersion = "1.0.0.0"
         metadata = @{
-            description = "ARM Template for deploying Azure Workbook - Sample Dashboard WPNinjas 2025"
+            description = "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025"
             lastUpdated = $timestamp
             workbookContentHash = $contentHash
             generatedBy = "Local combine-workbook.ps1 script"
@@ -60,28 +61,28 @@ try {
                 type = "string"
                 defaultValue = "Sample Dashboard WPNinjas 2025"
                 metadata = @{
-                    description = "The friendly name for the workbook that is used in the Gallery or Saved List."
+                    description = "The friendly name for the workbook template that is used in the Gallery or Saved List."
                 }
             }
-            workbookType = @{
+            templateName = @{
                 type = "string"
-                defaultValue = "workbook"
+                defaultValue = "A Workbook Template"
                 metadata = @{
-                    description = "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc."
+                    description = "The name for the workbook template in the gallery."
                 }
             }
-            workbookSourceId = @{
+            templateCategory = @{
                 type = "string"
-                defaultValue = "azure monitor"
+                defaultValue = "Deployed Templates"
                 metadata = @{
-                    description = "The id of resource instance to which the workbook will be associated"
+                    description = "The category for the workbook template in the gallery."
                 }
             }
             workbookId = @{
                 type = "string"
                 defaultValue = "[newGuid()]"
                 metadata = @{
-                    description = "The unique guid for this workbook instance"
+                    description = "The unique guid for this workbook template instance"
                 }
             }
             location = @{
@@ -104,31 +105,36 @@ try {
             }
         }
         variables = @{
-            workbookContentFromFile = $escapedContent
+            # No variables needed for workbook template approach
         }
         resources = @(
             @{
-                type = "microsoft.insights/workbooks"
+                type = "microsoft.insights/workbooktemplates"
                 name = "[parameters('workbookId')]"
                 location = "[parameters('location')]"
-                apiVersion = "2022-04-01"
+                apiVersion = "2020-11-20"
                 kind = "shared"
                 tags = "[parameters('resourceTags')]"
                 properties = @{
-                    displayName = "[parameters('workbookDisplayName')]"
-                    serializedData = "[variables('workbookContentFromFile')]"
-                    version = "1.0"
-                    sourceId = "[parameters('workbookSourceId')]"
-                    category = "[parameters('workbookType')]"
+                    galleries = @(
+                        @{
+                            name = "[parameters('templateName')]"
+                            category = "[parameters('templateCategory')]"
+                            order = 100
+                            type = "workbook"
+                            resourceType = "Azure Monitor"
+                        }
+                    )
+                    templateData = $templateDataContent
                 }
             }
         )
         outputs = @{
-            workbookId = @{
+            workbookTemplateId = @{
                 type = "string"
-                value = "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+                value = "[resourceId('microsoft.insights/workbooktemplates', parameters('workbookId'))]"
             }
-            workbookName = @{
+            workbookTemplateName = @{
                 type = "string"
                 value = "[parameters('workbookDisplayName')]"
             }
@@ -140,7 +146,7 @@ try {
     }
     
     # Convert to JSON and save
-    $armJson = $armTemplate | ConvertTo-Json -Depth 10 -Compress:$false
+    $armJson = $armTemplate | ConvertTo-Json -Depth 25 -Compress:$false
     $armJson | Set-Content "demo-armtemplate-1.json" -Encoding UTF8
     
     # Validate generated ARM template
@@ -153,15 +159,15 @@ try {
         Write-Host "⚠️  Warning: ARM template size ($templateSize bytes) is approaching the 4MB limit" -ForegroundColor Yellow
     }
     
-    Write-Host "✅ ARM template generated successfully!" -ForegroundColor Green
+    Write-Host "✅ ARM template with workbook template generated successfully!" -ForegroundColor Green
     Write-Host "   Template size: $templateSize bytes" -ForegroundColor Green
     Write-Host "   Content hash: $contentHash" -ForegroundColor Green
     Write-Host "   Updated: $timestamp" -ForegroundColor Green
     Write-Host ""
     Write-Host "🚀 Next steps:" -ForegroundColor Cyan
-    Write-Host "   1. Review the generated demo-armtemplate-1.json" -ForegroundColor White
+    Write-Host "   1. Review the generated demo-armtemplate-1.json (now uses workbook templates)" -ForegroundColor White
     Write-Host "   2. Test the deployment locally or commit to trigger CI/CD" -ForegroundColor White
-    Write-Host "   3. The template is ready for Azure deployment" -ForegroundColor White
+    Write-Host "   3. The template will create a workbook template in Azure Monitor gallery" -ForegroundColor White
     
 } catch {
     Write-Host "❌ Error: $($_.Exception.Message)" -ForegroundColor Red
