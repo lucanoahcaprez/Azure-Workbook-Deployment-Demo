@@ -8,9 +8,11 @@ This repository demonstrates how to deploy Azure Workbooks using ARM templates a
 ├── demo-workbook-1.json                 # Original workbook JSON export
 ├── demo-armtemplate-1.json             # ARM template for workbook deployment
 ├── demo-armtemplate-1.parameters.json  # Parameters file for ARM template
+├── combine-workbook.sh                 # Local combination script (Bash)
+├── combine-workbook.ps1                # Local combination script (PowerShell)
 ├── .github/workflows/
 │   ├── deploy-arm-template.yml         # Main deployment pipeline
-│   └── combine-workbook-into-arm.yml   # Utility pipeline (if exists)
+│   └── combine-workbook-into-arm.yml   # Workbook combination pipeline
 └── README.md                           # This file
 ```
 
@@ -50,23 +52,73 @@ The ARM template accepts the following parameters:
 
 ### Method 1: GitHub Actions (Recommended)
 
-The repository includes an automated CI/CD pipeline that:
+The repository includes two automated CI/CD pipelines:
+
+#### 🔄 Workbook Combination Pipeline
+**File**: `.github/workflows/combine-workbook-into-arm.yml`
+
+Automatically combines `demo-workbook-1.json` content into `demo-armtemplate-1.json`:
+
+- **Triggers**: Changes to `demo-workbook-1.yml`, `demo-workbook-1.json`, or manual dispatch
+- **Features**: JSON validation, content hashing, PR creation or direct commits
+- **Output**: Updated ARM template with embedded workbook content
+
+#### 🚀 Deployment Pipeline  
+**File**: `.github/workflows/deploy-arm-template.yml`
+
+Validates and deploys the ARM template to Azure:
 
 1. **Validates** the ARM template on every push/PR
-2. **Deploys** to Azure on main branch commits
+2. **Deploys** to Azure on main branch commits  
 3. **Tests** the deployment to ensure success
 
-#### Trigger Deployment
+#### Workflow Sequence
+1. Modify `demo-workbook-1.json` with your workbook changes
+2. Push to main branch → Combination pipeline embeds content into ARM template
+3. Updated ARM template → Deployment pipeline deploys to Azure
 
-- **Automatic**: Push changes to `main` branch
-- **Manual**: Use "Run workflow" in GitHub Actions tab
+#### Manual Workflow Triggers
+
+- **Combination**: Use "Run workflow" on combine-workbook-into-arm.yml
+- **Deployment**: Use "Run workflow" on deploy-arm-template.yml
 
 #### Manual Workflow Inputs
 
 - `resourceGroupName`: Target resource group (default: `rg-azure-workbook-demo`)
 - `location`: Azure region for deployment
 
-### Method 2: Azure CLI
+### Method 2: Local Scripts
+
+#### PowerShell (Windows)
+```powershell
+# Combine workbook content into ARM template
+./combine-workbook.ps1
+
+# Then deploy using Azure PowerShell
+Connect-AzAccount
+New-AzResourceGroup -Name "rg-azure-workbook-demo" -Location "West Europe"
+New-AzResourceGroupDeployment `
+  -ResourceGroupName "rg-azure-workbook-demo" `
+  -TemplateFile "./demo-armtemplate-1.json" `
+  -TemplateParameterFile "./demo-armtemplate-1.parameters.json"
+```
+
+#### Bash (Linux/macOS)
+```bash
+# Combine workbook content into ARM template
+chmod +x combine-workbook.sh
+./combine-workbook.sh
+
+# Then deploy using Azure CLI
+az login
+az group create --name "rg-azure-workbook-demo" --location "West Europe"
+az deployment group create \
+  --resource-group "rg-azure-workbook-demo" \
+  --template-file "./demo-armtemplate-1.json" \
+  --parameters "@demo-armtemplate-1.parameters.json"
+```
+
+### Method 3: Azure CLI
 
 ```bash
 # Login to Azure
@@ -84,7 +136,7 @@ az deployment group create \
   --parameters "@demo-armtemplate-1.parameters.json"
 ```
 
-### Method 3: Azure PowerShell
+### Method 4: Azure PowerShell
 
 ```powershell
 # Login to Azure
@@ -129,19 +181,51 @@ The deployed workbook includes:
 
 ### Modifying the Workbook
 
-1. **Edit the source**: Modify `demo-workbook-1.json`
-2. **Update ARM template**: The workbook content is embedded in `variables.workbookContent`
-3. **Test locally**: Use Azure CLI to validate before committing
-4. **Deploy**: Push to main branch or trigger manual deployment
+#### Automated Workflow (Recommended)
+1. **Edit the source**: Modify `demo-workbook-1.json` with your changes
+2. **Commit changes**: Push to repository → Combination pipeline automatically updates ARM template
+3. **Deploy**: ARM template is automatically deployed via deployment pipeline
+
+#### Local Development
+1. **Edit workbook**: Modify `demo-workbook-1.json`
+2. **Run combination script**: 
+   - Windows: `./combine-workbook.ps1`
+   - Linux/macOS: `./combine-workbook.sh`
+3. **Review changes**: Check the generated `demo-armtemplate-1.json`
+4. **Test locally**: Validate with Azure CLI before committing
+5. **Deploy**: Push to main branch or deploy manually
+
+### Workbook Content Management
+
+#### Automated Embedding Process
+The combination pipeline/scripts automatically:
+- Validates JSON syntax of the workbook
+- Calculates content hash for change tracking
+- Escapes special characters for ARM template embedding
+- Generates metadata (size, timestamp, hash)
+- Updates the ARM template with proper structure
+
+#### Content Validation
+Each combination includes:
+- **JSON Validation**: Ensures workbook content is valid
+- **Size Checks**: Warns if approaching ARM template 4MB limit
+- **Hash Tracking**: Detects content changes
+- **Template Validation**: Verifies generated ARM template syntax
 
 ### Adding New Queries
 
 To add new KQL queries to the workbook:
 
-1. Export your workbook from Azure Portal
-2. Copy the new query sections
-3. Update the ARM template's `workbookContent` variable
-4. Test the deployment
+1. **Azure Portal Method**:
+   - Edit workbook in Azure Portal
+   - Export as JSON
+   - Replace content in `demo-workbook-1.json`
+   - Use combination pipeline/script to update ARM template
+
+2. **Direct Edit Method**:
+   - Modify `demo-workbook-1.json` directly
+   - Add new query sections to appropriate workbook parts
+   - Test combination and deployment
 
 ### Environment-Specific Deployments
 
