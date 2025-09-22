@@ -2,68 +2,68 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "workbookContentHash": "669FB9BDE670D43BF8755D4E95FEDB14905F21F0B3E09C8FE960DCA6AC05BD4E",
-    "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025",
+    "lastUpdated": "2025-09-22T07:28:14Z",
     "generatedBy": "Local combine-workbook.ps1 script",
-    "lastUpdated": "2025-09-22T07:24:18Z",
-    "workbookSize": 38632
+    "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025",
+    "workbookSize": 38632,
+    "workbookContentHash": "669FB9BDE670D43BF8755D4E95FEDB14905F21F0B3E09C8FE960DCA6AC05BD4E"
   },
   "parameters": {
-    "templateName": {
-      "defaultValue": "A Workbook Template",
+    "workbookId": {
+      "defaultValue": "[newGuid()]",
+      "type": "string",
       "metadata": {
-        "description": "The name for the workbook template in the gallery."
-      },
-      "type": "string"
+        "description": "The unique guid for this workbook template instance"
+      }
     },
     "location": {
       "defaultValue": "[resourceGroup().location]",
+      "type": "string",
       "metadata": {
         "description": "Location for all resources."
-      },
-      "type": "string"
+      }
     },
-    "resourceTags": {
-      "defaultValue": {
-        "Project": "Azure-Workbook-Deployment-Demo",
-        "CreatedBy": "ARM Template",
-        "Environment": "Demo"
-      },
+    "templateName": {
+      "defaultValue": "A Workbook Template",
+      "type": "string",
       "metadata": {
-        "description": "Tags to apply to the workbook resource"
-      },
-      "type": "object"
+        "description": "The name for the workbook template in the gallery."
+      }
     },
     "templateCategory": {
       "defaultValue": "Deployed Templates",
+      "type": "string",
       "metadata": {
         "description": "The category for the workbook template in the gallery."
-      },
-      "type": "string"
+      }
     },
     "workbookDisplayName": {
       "defaultValue": "Sample Dashboard WPNinjas 2025",
+      "type": "string",
       "metadata": {
         "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
-      },
-      "type": "string"
+      }
     },
-    "workbookId": {
-      "defaultValue": "[newGuid()]",
-      "metadata": {
-        "description": "The unique guid for this workbook template instance"
+    "resourceTags": {
+      "defaultValue": {
+        "CreatedBy": "ARM Template",
+        "Environment": "Demo",
+        "Project": "Azure-Workbook-Deployment-Demo"
       },
-      "type": "string"
+      "type": "object",
+      "metadata": {
+        "description": "Tags to apply to the workbook resource"
+      }
     }
   },
   "variables": {},
   "resources": [
     {
-      "type": "microsoft.insights/workbooktemplates",
-      "apiVersion": "2020-11-20",
-      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "name": "[parameters('workbookId')]",
+      "location": "[parameters('location')]",
       "kind": "shared",
+      "type": "microsoft.insights/workbooktemplates",
       "properties": {
         "templateData": {
           "version": "Notebook/1.0",
@@ -1003,15 +1003,15 @@
         },
         "galleries": [
           {
-            "category": "[parameters('templateCategory')]",
             "resourceType": "Azure Monitor",
             "name": "[parameters('templateName')]",
+            "type": "workbook",
             "order": 100,
-            "type": "workbook"
+            "category": "[parameters('templateCategory')]"
           }
         ]
       },
-      "tags": "[parameters('resourceTags')]"
+      "apiVersion": "2020-11-20"
     }
   ],
   "outputs": {
