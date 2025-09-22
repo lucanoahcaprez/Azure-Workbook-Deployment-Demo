@@ -74,10 +74,26 @@ jobs:
         done
         
         # Validate workbook template content is embedded
-        if ! jq -e '.resources[0].properties.templateData | length > 10' demo-armtemplate-1.json > /dev/null; then
-          echo "❌ Workbook template content appears to be missing or too short"
+        if ! jq -e '.resources[0].properties.templateData.version' demo-armtemplate-1.json > /dev/null; then
+          echo "❌ Workbook template content appears to be missing or malformed"
           exit 1
         fi
+        
+        # Check if templateData has substantial content (check for items array)
+        if ! jq -e '.resources[0].properties.templateData.items | length > 0' demo-armtemplate-1.json > /dev/null; then
+          echo "❌ Workbook template content appears to be empty (no items found)"
+          exit 1
+        fi
+        
+        # Validate templateData contains a valid workbook structure
+        WORKBOOK_VERSION=$(jq -r '.resources[0].properties.templateData.version' demo-armtemplate-1.json)
+        if [[ ! "$WORKBOOK_VERSION" =~ ^Notebook/ ]]; then
+          echo "❌ Invalid workbook version format: $WORKBOOK_VERSION"
+          exit 1
+        fi
+        
+        ITEM_COUNT=$(jq -r '.resources[0].properties.templateData.items | length' demo-armtemplate-1.json)
+        echo "✅ Workbook template validation successful - $ITEM_COUNT items found"
         
         # Validate it's a workbook template resource
         RESOURCE_TYPE=$(jq -r '.resources[0].type' demo-armtemplate-1.json)
