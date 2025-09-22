@@ -145,8 +145,29 @@ try {
         }
     }
     
-    # Convert to JSON and save
+    # Convert to JSON and save with manual schema insertion
     $armJson = $armTemplate | ConvertTo-Json -Depth 25 -Compress:$false
+    
+    # Ensure the $schema property is at the beginning
+    if (-not $armJson.StartsWith('{"$schema"')) {
+        Write-Host "⚠️ Fixing schema property position..." -ForegroundColor Yellow
+        
+        # Parse the JSON and rebuild with correct order
+        $parsedTemplate = $armJson | ConvertFrom-Json
+        
+        # Create a new ordered structure with schema first
+        $fixedTemplate = [ordered]@{
+            '$schema' = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+            contentVersion = $parsedTemplate.contentVersion
+            metadata = $parsedTemplate.metadata
+            parameters = $parsedTemplate.parameters
+            variables = $parsedTemplate.variables
+            resources = $parsedTemplate.resources
+            outputs = $parsedTemplate.outputs
+        }
+        
+        $armJson = $fixedTemplate | ConvertTo-Json -Depth 25 -Compress:$false
+    }
     
     # Ensure proper encoding and clean formatting
     $armJson = $armJson -replace '\r\n', "`n" -replace '\r', "`n"
