@@ -55,15 +55,12 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Validate ARM Template
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
-          template: ./demo-armtemplate-1.json
-          deploymentMode: Validate
-          parameters: >
-            workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD"
-            location="${{ env.AZURE_LOCATION }}"
+        run: |
+          az deployment group validate \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --template-file demo-armtemplate-1.json \
+            --parameters workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD" \
+            --parameters location="${{ env.AZURE_LOCATION }}"
 
   deploy:
     runs-on: ubuntu-latest
@@ -89,36 +86,27 @@ jobs:
             --location "${{ env.AZURE_LOCATION }}" \
             --tags Environment=Demo Project=Azure-Workbook-Deployment-Demo CreatedBy=GitHub-Actions
 
-      - name: Deploy ARM Template
-        uses: azure/arm-deploy@v1
-        id: deploy
-        with:
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
-          template: ./demo-armtemplate-1.json
-          deploymentName: "workbook-deployment-${{ github.run_number }}"
-          parameters: >
-            workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD"
-            location="${{ env.AZURE_LOCATION }}"
-            resourceTags={
-              "Environment": "Demo",
-              "Project": "Azure-Workbook-Deployment-Demo",
-              "CreatedBy": "GitHub-Actions",
-              "DeploymentId": "${{ github.run_number }}",
-              "CommitSha": "${{ github.sha }}"
-            }
+      - name: Create deployment
+        run: |
+          az deployment group create \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --template-file demo-armtemplate-1.json \
+            --parameters workbookId="$(uuidgen)" \
+            --parameters workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD" \
+            --parameters location="${{ env.AZURE_LOCATION }}" \
+            --parameters resourceTags='{"Environment":"Demo","Project":"Azure-Workbook-Deployment-Demo","CreatedBy":"GitHub-Actions","DeploymentId":"${{ github.run_number }}","CommitSha":"${{ github.sha }}"}' \
+            --name "workbook-deployment-${{ github.run_number }}"
 
       - name: Output Deployment Information
         run: |
           echo "### 🚀 Deployment Successful! ###" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Workbook Name:** ${{ steps.deploy.outputs.workbookName }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Workbook ID:** ${{ steps.deploy.outputs.workbookId }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Workbook Name:** Sample Dashboard WPNinjas 2025 - CI/CD" >> $GITHUB_STEP_SUMMARY
           echo "**Resource Group:** ${{ env.AZURE_RESOURCE_GROUP }}" >> $GITHUB_STEP_SUMMARY
           echo "**Location:** ${{ env.AZURE_LOCATION }}" >> $GITHUB_STEP_SUMMARY
           echo "**Deployment Name:** workbook-deployment-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 [View Workbook in Azure Portal](https://portal.azure.com/#blade/AppInsightsExtension/UsageNotebookBlade/ComponentId/azure%20monitor/ConfigurationId/${{ steps.deploy.outputs.workbookId }}/Type/workbook)" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Resource Group in Azure Portal](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.AZURE_RESOURCE_GROUP }}/overview)" >> $GITHUB_STEP_SUMMARY
 
   test-deployment:
     runs-on: ubuntu-latest
@@ -133,20 +121,21 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Verify Workbook Deployment
+      - name: Verify Workbook Template Deployment
         run: |
-          echo "Checking if workbook was deployed successfully..."
-          WORKBOOK_COUNT=$(az monitor app-insights workbook list \
+          echo "Checking if workbook template was deployed successfully..."
+          TEMPLATE_COUNT=$(az resource list \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --query "length([?contains(displayName, 'Sample Dashboard WPNinjas 2025')])" \
+            --resource-type "microsoft.insights/workbooktemplates" \
+            --query "length([?contains(name, 'workbook')])" \
             --output tsv)
 
-          if [ "$WORKBOOK_COUNT" -gt 0 ]; then
-            echo "✅ Workbook deployment verified successfully!"
-            echo "Found $WORKBOOK_COUNT workbook(s) matching the criteria."
+          if [ "$TEMPLATE_COUNT" -gt 0 ]; then
+            echo "✅ Workbook template deployment verified successfully!"
+            echo "Found $TEMPLATE_COUNT workbook template(s) in the resource group."
           else
-            echo "❌ Workbook verification failed!"
-            echo "No workbooks found with the expected name."
+            echo "❌ Workbook template verification failed!"
+            echo "No workbook templates found in the resource group."
             exit 1
           fi
 
