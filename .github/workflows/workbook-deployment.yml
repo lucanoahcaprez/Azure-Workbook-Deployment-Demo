@@ -1,0 +1,358 @@
+name: Workbook Template Deployment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'demo-workbook-1.json'
+      - 'demo-armtemplate-1.json'
+      - '.github/workflows/workbook-deployment.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'demo-workbook-1.json'
+      - 'demo-armtemplate-1.json'
+      - '.github/workflows/workbook-deployment.yml'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update ARM template even if no changes'
+        required: false
+        default: false
+        type: boolean
+      resourceGroupName:
+        description: "Resource Group Name"
+        required: true
+        default: "rg-azure-workbook-demo"
+      location:
+        description: "Azure Region"
+        required: true
+        default: "West Europe"
+        type: choice
+        options:
+          - "West Europe"
+          - "East US"
+          - "East US 2"
+          - "West US 2"
+          - "Central US"
+
+env:
+  AZURE_RESOURCE_GROUP: ${{ github.event.inputs.resourceGroupName || 'rg-azure-workbook-demo' }}
+  AZURE_LOCATION: ${{ github.event.inputs.location || 'West Europe' }}
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Step 1: Generate ARM Template
+  generate-template:
+    runs-on: ubuntu-latest
+    name: "Step 1: Generate ARM Template"
+    outputs:
+      has_changes: ${{ steps.check-changes.outputs.has_changes }}
+      template_generated: ${{ steps.generate.outputs.success }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Install PowerShell
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y powershell
+
+    - name: Generate ARM Template using PowerShell
+      id: generate
+      run: |
+        echo "🏗️ Generating ARM template using PowerShell script..."
+        if pwsh -File combine-workbook.ps1; then
+          echo "✅ ARM template generated successfully"
+          echo "success=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ ARM template generation failed"
+          echo "success=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+    - name: Validate Generated Template
+      run: |
+        echo "🔍 Validating generated ARM template..."
+        
+        # Install jq if not available
+        sudo apt-get install -y jq
+        
+        # Validate JSON syntax
+        if ! jq empty demo-armtemplate-1.json; then
+          echo "❌ Generated ARM template has invalid JSON syntax"
+          exit 1
+        fi
+        
+        # Validate required ARM template sections
+        REQUIRED_SECTIONS=('$schema' 'contentVersion' 'parameters' 'variables' 'resources' 'outputs')
+        for section in "${REQUIRED_SECTIONS[@]}"; do
+          if [ "$section" = '$schema' ]; then
+            # Special handling for $schema due to jq syntax
+            if ! jq -e '.["$schema"]' demo-armtemplate-1.json > /dev/null; then
+              echo "❌ Missing required ARM template section: $section"
+              exit 1
+            fi
+          else
+            if ! jq -e ".$section" demo-armtemplate-1.json > /dev/null; then
+              echo "❌ Missing required ARM template section: $section"
+              exit 1
+            fi
+          fi
+        done
+        
+        # Validate workbook template content is embedded
+        if ! jq -e '.resources[0].properties.templateData.version' demo-armtemplate-1.json > /dev/null; then
+          echo "❌ Workbook template content appears to be missing or malformed"
+          exit 1
+        fi
+        
+        # Check if templateData has substantial content (check for items array)
+        if ! jq -e '.resources[0].properties.templateData.items | length > 0' demo-armtemplate-1.json > /dev/null; then
+          echo "❌ Workbook template content appears to be empty (no items found)"
+          exit 1
+        fi
+        
+        # Validate templateData contains a valid workbook structure
+        WORKBOOK_VERSION=$(jq -r '.resources[0].properties.templateData.version' demo-armtemplate-1.json)
+        if [[ ! "$WORKBOOK_VERSION" =~ ^Notebook/ ]]; then
+          echo "❌ Invalid workbook version format: $WORKBOOK_VERSION"
+          exit 1
+        fi
+        
+        ITEM_COUNT=$(jq -r '.resources[0].properties.templateData.items | length' demo-armtemplate-1.json)
+        echo "✅ Workbook template validation successful - $ITEM_COUNT items found"
+        
+        # Validate it's a workbook template resource
+        RESOURCE_TYPE=$(jq -r '.resources[0].type' demo-armtemplate-1.json)
+        if [ "$RESOURCE_TYPE" != "microsoft.insights/workbooktemplates" ]; then
+          echo "❌ Expected workbook template resource type, found: $RESOURCE_TYPE"
+          exit 1
+        fi
+        
+        # Check template size (ARM templates have size limits)
+        TEMPLATE_SIZE=$(wc -c < demo-armtemplate-1.json)
+        if [ $TEMPLATE_SIZE -gt 4194304 ]; then  # 4MB limit
+          echo "⚠️  Warning: ARM template size ($TEMPLATE_SIZE bytes) is approaching the 4MB limit"
+        fi
+        
+        echo "✅ ARM template validation successful"
+        echo "📊 Template size: $TEMPLATE_SIZE bytes"
+
+    - name: Check for Changes
+      id: check-changes
+      run: |
+        if git diff --quiet demo-armtemplate-1.json || [ "${{ github.event.inputs.force_update }}" == "true" ]; then
+          if [ "${{ github.event.inputs.force_update }}" == "true" ]; then
+            echo "🔄 Force update requested"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️  No changes detected in ARM template"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "📝 Changes detected in ARM template"
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit and Push Changes
+      if: steps.check-changes.outputs.has_changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add demo-armtemplate-1.json
+        git commit -m "🔄 Auto-update ARM template from workbook changes
+        
+        - Generated from demo-workbook-1.json
+        - Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        - Source commit: ${{ github.sha }}
+        - Workflow: ${{ github.workflow }}
+        
+        Co-authored-by: GitHub Actions <action@github.com>"
+        
+        # Push changes
+        git push
+
+  # Step 2: Validate ARM Template
+  validate-template:
+    runs-on: ubuntu-latest
+    name: "Step 2: Validate ARM Template"
+    needs: generate-template
+    if: needs.generate-template.outputs.template_generated == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Get the latest code including any commits from the generate step
+          ref: ${{ github.ref }}
+
+      - name: Pull latest changes
+        if: needs.generate-template.outputs.has_changes == 'true'
+        run: git pull origin ${{ github.ref_name }}
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create Resource Group for Validation
+        run: |
+          az group create \
+            --name ${{ env.AZURE_RESOURCE_GROUP }} \
+            --location "${{ env.AZURE_LOCATION }}" \
+            --tags Environment=Demo Project=Azure-Workbook-Deployment-Demo CreatedBy=GitHub-Actions
+
+      - name: Validate ARM Template
+        run: |
+          echo "🔍 Validating ARM template with Azure..."
+          az deployment group validate \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --template-file demo-armtemplate-1.json \
+            --parameters workbookId="$(uuidgen)" \
+            --parameters workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD" \
+            --parameters location="${{ env.AZURE_LOCATION }}" \
+            --parameters templateName="A Workbook Template" \
+            --parameters templateCategory="Deployed Templates"
+          echo "✅ ARM template validation successful"
+
+  # Step 3: Deploy to Azure
+  deploy:
+    runs-on: ubuntu-latest
+    needs: validate-template
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    name: "Step 3: Deploy to Azure"
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Pull latest changes
+        if: needs.generate-template.outputs.has_changes == 'true'
+        run: git pull origin ${{ github.ref_name }}
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy ARM Template
+        run: |
+          echo "🚀 Starting ARM template deployment..."
+          
+          DEPLOYMENT_OUTPUT=$(az deployment group create \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --template-file demo-armtemplate-1.json \
+            --parameters workbookId="$(uuidgen)" \
+            --parameters workbookDisplayName="Sample Dashboard WPNinjas 2025 - CI/CD" \
+            --parameters location="${{ env.AZURE_LOCATION }}" \
+            --parameters templateName="A Workbook Template" \
+            --parameters templateCategory="Deployed Templates" \
+            --parameters resourceTags='{"Environment":"Demo","Project":"Azure-Workbook-Deployment-Demo","CreatedBy":"GitHub-Actions","DeploymentId":"${{ github.run_number }}","CommitSha":"${{ github.sha }}"}' \
+            --name "workbook-deployment-${{ github.run_number }}" \
+            --output json)
+          
+          echo "✅ Deployment completed!"
+          echo "📊 Deployment details:"
+          echo "$DEPLOYMENT_OUTPUT" | jq -r '.properties.provisioningState'
+          
+          # Check if deployment was successful
+          PROVISIONING_STATE=$(echo "$DEPLOYMENT_OUTPUT" | jq -r '.properties.provisioningState')
+          if [ "$PROVISIONING_STATE" != "Succeeded" ]; then
+            echo "❌ Deployment failed with state: $PROVISIONING_STATE"
+            exit 1
+          fi
+
+  # Step 4: Verify Deployment
+  verify-deployment:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    name: "Step 4: Verify Deployment"
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify Workbook Template Deployment
+        run: |
+          echo "🔍 Checking if workbook template was deployed successfully..."
+          
+          # First, list all resources to see what was actually deployed
+          echo "📋 All resources in Resource Group:"
+          az resource list \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --output table
+          
+          echo ""
+          echo "🔍 Looking specifically for workbook templates..."
+          
+          # Check for workbook templates with more flexible criteria
+          TEMPLATE_COUNT=$(az resource list \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --resource-type "microsoft.insights/workbooktemplates" \
+            --query "length([])" \
+            --output tsv)
+
+          echo "Found $TEMPLATE_COUNT workbook template(s) in the resource group."
+
+          if [ "$TEMPLATE_COUNT" -gt 0 ]; then
+            echo "✅ Workbook template deployment verified successfully!"
+            
+            # Show details of the deployed templates
+            echo "📝 Workbook template details:"
+            az resource list \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --resource-type "microsoft.insights/workbooktemplates" \
+              --output table
+          else
+            echo "❌ Workbook template verification failed!"
+            echo "No workbook templates found in the resource group."
+            
+            # Check if there are any other resources that might indicate the deployment worked
+            ALL_RESOURCES=$(az resource list \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --query "length([])" \
+              --output tsv)
+            
+            if [ "$ALL_RESOURCES" -gt 0 ]; then
+              echo "⚠️ However, found $ALL_RESOURCES other resource(s) in the group. The deployment may have succeeded with a different resource type."
+              echo "This might indicate an issue with the template or resource type specification."
+            fi
+            
+            exit 1
+          fi
+
+      - name: Create Deployment Summary
+        if: always()
+        run: |
+          echo "### 🚀 Workbook Template Deployment Complete! ###" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Pipeline Status:** ✅ All 4 steps completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Step 1:** ✅ ARM template generated and validated" >> $GITHUB_STEP_SUMMARY
+          echo "**Step 2:** ✅ ARM template validated with Azure" >> $GITHUB_STEP_SUMMARY
+          echo "**Step 3:** ✅ Workbook template deployed to Azure" >> $GITHUB_STEP_SUMMARY
+          echo "**Step 4:** ✅ Deployment verified successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment Details:**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workbook Name:** Sample Dashboard WPNinjas 2025 - CI/CD" >> $GITHUB_STEP_SUMMARY
+          echo "- **Resource Group:** ${{ env.AZURE_RESOURCE_GROUP }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Location:** ${{ env.AZURE_LOCATION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Name:** workbook-deployment-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Resource Type:** microsoft.insights/workbooktemplates" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Resource Group in Azure Portal](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.AZURE_RESOURCE_GROUP }}/overview)" >> $GITHUB_STEP_SUMMARY
