@@ -2,38 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "workbookContentHash": "079CDAEF37FB6BDCADBCDFE40F267FB5CD14400165961B3873B87749D1C88737",
-    "lastUpdated": "2025-09-22T08:00:51Z",
+    "workbookSize": 39713,
+    "lastUpdated": "2025-09-23T20:55:33Z",
     "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025",
     "generatedBy": "Local combine-workbook.ps1 script",
-    "workbookSize": 38632
+    "workbookContentHash": "1C5591C069C456DE07665919E2248A19C330360EE4CF5E1386CA2DC2D49C92B3"
   },
   "parameters": {
-    "workbookId": {
-      "type": "string",
-      "metadata": {
-        "description": "The unique guid for this workbook template instance"
-      },
-      "defaultValue": "[newGuid()]"
-    },
-    "resourceTags": {
-      "type": "object",
-      "metadata": {
-        "description": "Tags to apply to the workbook resource"
-      },
-      "defaultValue": {
-        "Project": "Azure-Workbook-Deployment-Demo",
-        "CreatedBy": "ARM Template",
-        "Environment": "Demo"
-      }
-    },
-    "workbookDisplayName": {
-      "type": "string",
-      "metadata": {
-        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
-      },
-      "defaultValue": "Sample Dashboard WPNinjas 2025"
-    },
     "templateName": {
       "type": "string",
       "metadata": {
@@ -48,18 +23,54 @@
       },
       "defaultValue": "[resourceGroup().location]"
     },
+    "workbookDisplayName": {
+      "type": "string",
+      "metadata": {
+        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
+      },
+      "defaultValue": "Sample Dashboard WPNinjas 2025"
+    },
     "templateCategory": {
       "type": "string",
       "metadata": {
         "description": "The category for the workbook template in the gallery."
       },
       "defaultValue": "Deployed Templates"
+    },
+    "workbookId": {
+      "type": "string",
+      "metadata": {
+        "description": "The unique guid for this workbook template instance"
+      },
+      "defaultValue": "[newGuid()]"
+    },
+    "resourceTags": {
+      "type": "object",
+      "metadata": {
+        "description": "Tags to apply to the workbook resource"
+      },
+      "defaultValue": {
+        "CreatedBy": "ARM Template",
+        "Environment": "Demo",
+        "Project": "Azure-Workbook-Deployment-Demo"
+      }
     }
   },
   "variables": {},
   "resources": [
     {
+      "type": "microsoft.insights/workbooktemplates",
+      "location": "[parameters('location')]",
       "properties": {
+        "galleries": [
+          {
+            "type": "workbook",
+            "name": "[parameters('templateName')]",
+            "order": 100,
+            "resourceType": "Azure Monitor",
+            "category": "[parameters('templateCategory')]"
+          }
+        ],
         "templateData": {
           "version": "Notebook/1.0",
           "items": [
@@ -344,7 +355,7 @@
                   {
                     "type": 1,
                     "content": {
-                      "json": "<div style=\"font-family:'Segoe UI', sans-serif; background-color:#ffffff;\">\r\n  <div style=\"display: flex; justify-content: space-between; align-items: center;\">\r\n    <h2 style=\"color:#green; font-size:35px;\">Sample Dashboard WPNinjas 2025</h2>\r\n  <img src=\"https://summit.wpninjas.global/wp-content/uploads/2025/04/Global-NinjaSummit-BANNER.png\"  \r\n       alt=\"baseVISION Logo\" \r\n       style=\"background-color: #000; max-height: 200px; padding: 0px;\" />\r\n</div>\r\n\r\n  \r\n  <div style=\"display:flex; justify-content:space-between;  border-bottom:1px solid #000;\">\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🛠 Intune Diagnostics</h4>\r\n      <p><strong>Last Import:</strong> <span>{LastIntuneDiagnosticsImport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🔄 Windows Update</h4>\r\n      <p><strong>Last Report:</strong> <span>{LastWindowsUpdateReport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>⚙️ Versions</h4>\r\n      <p><strong>KQL Dashboard:</strong> <span>'1.0.13'</span></p>\r\n      <p><strong>Azure Function:</strong> <span>{AzureFunctionVersion}</span></p>\r\n    </div>\r\n  </div>\r\n</div>"
+                      "json": "<div style=\"font-family:'Segoe UI', sans-serif; background-color:#ffffff;\">\r\n  <div style=\"display: flex; justify-content: space-between; align-items: center;\">\r\n    <h2 style=\"color:#green; font-size:35px;\">Sample Dashboard WPNinjas 2025</h2>\r\n  <img src=\"https://summit.wpninjas.global/wp-content/uploads/2025/04/Global-NinjaSummit-BANNER.png\"  \r\n       alt=\"baseVISION Logo\" \r\n       style=\"background-color: #000; max-height: 200px; padding: 0px;\" />\r\n</div>\r\n\r\n  \r\n  <div style=\"display:flex; justify-content:space-between;  border-bottom:1px solid #000;\">\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🛠 Intune Diagnostics</h4>\r\n      <p><strong>Last Import:</strong> <span>{LastIntuneDiagnosticsImport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🔄 Windows Update</h4>\r\n      <p><strong>Last Report:</strong> <span>{LastWindowsUpdateReport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>⚙️ Versions</h4>\r\n      <p><strong>KQL Dashboard:</strong> <span>'1.0.5'</span></p>\r\n      <p><strong>Azure Function:</strong> <span>{AzureFunctionVersion}</span></p>\r\n    </div>\r\n  </div>\r\n</div>"
                     },
                     "name": "text - 3"
                   },
@@ -642,7 +653,7 @@
                     "type": 3,
                     "content": {
                       "version": "KqlItem/1.0",
-                      "query": "let rawData = externaldata(ApplicationId:string,  DisplayName:string, Platform_loc:string, FailedDevicePercentage:real, FailedDeviceCount:int, FailedUserCount:int, InstalledDeviceCount:int)\r\n[\r\n    'https://func-frqeizmvascwy.azurewebsites.net/api/kqldashboard-prod-01?code=5T4vhf8i4mVTAG19OLqUG2C8pYSz95YBi46t-yaV18CwAzFus4coOQ==&evaluationType=deviceManagement_reports_getAppsInstallSummaryReport'\r\n]\r\nwith(format='multijson');\r\n\r\nrawData\r\n| where Platform_loc in ({OSSelection})\r\n| summarize \r\n    CompliantDrivers = countif(todouble(FailedDevicePercentage) < 10),\r\n    TotalDrivers = count()\r\n| extend CompliancePercentage = (todouble(CompliantDrivers) / todouble(TotalDrivers) * 100)\r\n| project CompliancePercentage",
+                      "query": "let rawData = externaldata(ApplicationId:string,  DisplayName:string, Platform_loc:string, FailedDevicePercentage:real, FailedDeviceCount:int, FailedUserCount:int, InstalledDeviceCount:int)\r\n[\r\n    'https://func-lnc-kpidashboard-test-chn-02.azurewebsites.net/api/func-lnc-sampledashboardwpninjas2025-test-chn-01?code=5T4vhf8i4mVTAG19OLqUG2C8pYSz95YBi46t-yaV18CwAzFus4coOQ==&evaluationType=deviceManagement_reports_getAppsInstallSummaryReport'\r\n]\r\nwith(format='multijson');\r\n\r\nrawData\r\n| where Platform_loc in ({OSSelection})\r\n| summarize \r\n    CompliantDrivers = countif(todouble(FailedDevicePercentage) < 10),\r\n    TotalDrivers = count()\r\n| extend CompliancePercentage = (todouble(CompliantDrivers) / todouble(TotalDrivers) * 100)\r\n| project CompliancePercentage",
                       "size": 4,
                       "title": "Device Application Installation Benchmark",
                       "timeContextFromParameter": "TimeRange",
@@ -977,7 +988,27 @@
                         "valueField": "Count"
                       }
                     },
+                    "customWidth": "50",
                     "name": "Active Intune Devices - Graph"
+                  },
+                  {
+                    "type": 3,
+                    "content": {
+                      "version": "KqlItem/1.0",
+                      "query": "IntuneDevices\r\n| where TimeGenerated >= ago(90d)\r\n| extend DayDate = bin(TimeGenerated, 1d)\r\n| summarize DeviceCount = dcount(DeviceId) by DayDate\r\n| sort by DayDate asc\r\n| render linechart \r\n    with (\r\n        title=\"Intune Device Count by Day (Last 30 Days)\",\r\n        xtitle=\"Date\",\r\n        ytitle=\"Number of Devices\",\r\n        legend=hidden\r\n    )",
+                      "size": 0,
+                      "title": "Intune Device Count by Day (Last 30 Days)",
+                      "timeContext": {
+                        "durationMs": 2592000000
+                      },
+                      "queryType": 0,
+                      "resourceType": "microsoft.operationalinsights/workspaces",
+                      "crossComponentResources": [
+                        "{LogAnalyticsWorkspaces}"
+                      ]
+                    },
+                    "customWidth": "50",
+                    "name": "Intune Device Count by Day (Last 30 Days)"
                   }
                 ]
               },
@@ -986,46 +1017,34 @@
                 "comparison": "isEqualTo",
                 "value": "ExampleTab1"
               },
-              "customWidth": "50",
               "name": "group - 3"
             }
           ],
           "fallbackResourceIds": [
-            "Azure Monitor"
+            "azure monitor"
           ],
-          "fromTemplateId": "ArmTemplates-/subscriptions/b514a885-9f17-404b-93b1-21bd2693bd36/resourceGroups/rg-azure-workbook-demo/providers/microsoft.insights/workbooktemplates/fe58d41b-4e23-4ee0-89d2-13a25077b10a",
+          "fromTemplateId": "ArmTemplates-/subscriptions/79e32b40-6dd1-45dc-a9b2-70cd5a110aa8/resourceGroups/rg-wb-chb-kql-kpidashboard-prod-01/providers/microsoft.insights/workbooktemplates/f144f607-a85a-4724-a1bb-24477c1294cf",
           "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
-        },
-        "galleries": [
-          {
-            "category": "[parameters('templateCategory')]",
-            "resourceType": "Azure Monitor",
-            "order": 100,
-            "type": "workbook",
-            "name": "[parameters('templateName')]"
-          }
-        ]
+        }
       },
-      "type": "microsoft.insights/workbooktemplates",
       "kind": "shared",
-      "tags": "[parameters('resourceTags')]",
-      "location": "[parameters('location')]",
+      "apiVersion": "2020-11-20",
       "name": "[parameters('workbookId')]",
-      "apiVersion": "2020-11-20"
+      "tags": "[parameters('resourceTags')]"
     }
   ],
   "outputs": {
     "workbookTemplateId": {
-      "value": "[resourceId('microsoft.insights/workbooktemplates', parameters('workbookId'))]",
-      "type": "string"
-    },
-    "workbookContentHash": {
-      "value": "079CDAEF37FB6BDCADBCDFE40F267FB5CD14400165961B3873B87749D1C88737",
-      "type": "string"
+      "type": "string",
+      "value": "[resourceId('microsoft.insights/workbooktemplates', parameters('workbookId'))]"
     },
     "workbookTemplateName": {
-      "value": "[parameters('workbookDisplayName')]",
-      "type": "string"
+      "type": "string",
+      "value": "[parameters('workbookDisplayName')]"
+    },
+    "workbookContentHash": {
+      "type": "string",
+      "value": "1C5591C069C456DE07665919E2248A19C330360EE4CF5E1386CA2DC2D49C92B3"
     }
   }
 }
