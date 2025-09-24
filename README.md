@@ -11,7 +11,7 @@ This repository demonstrates how to deploy Azure Workbooks using ARM templates a
 ├── combine-workbook.sh                 # Local combination script (Bash)
 ├── combine-workbook.ps1                # Local combination script (PowerShell)
 ├── .github/workflows/
-│   ├── deploy-arm-template.yml         # Main deployment pipeline
+│   ├── workbook-deployment.yml         # Main deployment pipeline
 │   └── combine-workbook-into-arm.yml   # Workbook combination pipeline
 └── README.md                           # This file
 ```
@@ -69,38 +69,26 @@ This button deploys the ARM template directly from the GitHub repository. The wo
 
 ### Method 2: GitHub Actions (Recommended for Development)
 
-The repository includes two automated CI/CD pipelines:
+The repository includes an automated CI/CD pipeline for development workflows:
 
-#### 🔄 Workbook Combination Pipeline
-**File**: `.github/workflows/combine-workbook-into-arm.yml`
+#### � Automated Deployment Pipeline  
+**File**: `.github/workflows/workbook-deployment.yml`
 
-Automatically combines `demo-workbook-1.json` content into `demo-armtemplate-1.json`:
-
-- **Triggers**: Changes to `demo-workbook-1.yml`, `demo-workbook-1.json`, or manual dispatch
-- **Features**: JSON validation, content hashing, PR creation or direct commits
-- **Output**: Updated ARM template with embedded workbook content
-
-#### 🚀 Deployment Pipeline  
-**File**: `.github/workflows/deploy-arm-template.yml`
-
-Validates and deploys the ARM template to Azure:
+This pipeline automatically handles the complete deployment process:
 
 1. **Validates** the ARM template on every push/PR
-2. **Deploys** to Azure on main branch commits  
-3. **Tests** the deployment to ensure success
+2. **Combines** workbook content from `demo-workbook-1.json` into the ARM template
+3. **Deploys** to Azure on main branch commits  
+4. **Tests** the deployment to ensure success
 
-#### Workflow Sequence
+#### Development Workflow
 1. Modify `demo-workbook-1.json` with your workbook changes
-2. Push to main branch → Combination pipeline embeds content into ARM template
-3. Updated ARM template → Deployment pipeline deploys to Azure
+2. Push to main branch → Pipeline automatically processes and deploys to Azure
+3. Monitor the GitHub Actions tab for deployment status
 
-#### Manual Workflow Triggers
+#### Manual Trigger Options
 
-- **Combination**: Use "Run workflow" on combine-workbook-into-arm.yml
-- **Deployment**: Use "Run workflow" on deploy-arm-template.yml
-
-#### Manual Workflow Inputs
-
+Use "Run workflow" on the Actions tab with these inputs:
 - `resourceGroupName`: Target resource group (default: `rg-azure-workbook-demo`)
 - `location`: Azure region for deployment
 
