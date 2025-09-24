@@ -50,7 +50,24 @@ The ARM template accepts the following parameters:
 
 ## 🔄 Deployment Methods
 
-### Method 1: GitHub Actions (Recommended)
+### Method 1: Quick Deploy to Azure
+
+Deploy this workbook directly to your Azure subscription with a single click:
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Flucanoahcaprez%2FAzure-Workbook-Deployment-Demo%2Fmain%2Fdemo-armtemplate-1.json)
+
+This button deploys the ARM template directly from the GitHub repository. The workbook content is sourced from: [demo-workbook-1.json](https://github.com/lucanoahcaprez/Azure-Workbook-Deployment-Demo/blob/main/demo-workbook-1.json)
+
+**What this does:**
+- Creates a new Azure Workbook in your selected resource group
+- Uses the latest workbook configuration from this repository
+- Applies default settings from the parameters file
+
+**Prerequisites:**
+- Azure subscription with contributor access
+- Resource group where you want to deploy the workbook
+
+### Method 2: GitHub Actions (Recommended for Development)
 
 The repository includes two automated CI/CD pipelines:
 
@@ -87,7 +104,7 @@ Validates and deploys the ARM template to Azure:
 - `resourceGroupName`: Target resource group (default: `rg-azure-workbook-demo`)
 - `location`: Azure region for deployment
 
-### Method 2: Local Scripts
+### Method 3: Local Scripts
 
 #### PowerShell (Windows)
 ```powershell
@@ -118,7 +135,7 @@ az deployment group create \
   --parameters "@demo-armtemplate-1.parameters.json"
 ```
 
-### Method 3: Azure CLI
+### Method 4: Azure CLI
 
 ```bash
 # Login to Azure
@@ -136,7 +153,7 @@ az deployment group create \
   --parameters "@demo-armtemplate-1.parameters.json"
 ```
 
-### Method 4: Azure PowerShell
+### Method 5: Azure PowerShell
 
 ```powershell
 # Login to Azure
