@@ -2,73 +2,66 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "lastUpdated": "2025-09-23T21:11:24Z",
+    "lastUpdated": "2025-09-24T10:39:41Z",
+    "workbookContentHash": "73791FCEA2A6CF0798B679C14F8A005C04A6B0E2FFBDA8CC81445455D6331F04",
     "generatedBy": "Local combine-workbook.ps1 script",
-    "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025",
-    "workbookContentHash": "E87FDCFC0BD1308D300AFE9DF5A94257A0714094FD6E406E0BE7B89B3124AD18",
-    "workbookSize": 39713
+    "workbookSize": 39713,
+    "description": "ARM Template for deploying Azure Workbook Template - Sample Dashboard WPNinjas 2025"
   },
   "parameters": {
-    "templateName": {
-      "defaultValue": "A Workbook Template",
-      "metadata": {
-        "description": "The name for the workbook template in the gallery."
-      },
-      "type": "string"
-    },
     "resourceTags": {
-      "defaultValue": {
-        "Project": "Azure-Workbook-Deployment-Demo",
-        "Environment": "Demo",
-        "CreatedBy": "ARM Template"
-      },
       "metadata": {
         "description": "Tags to apply to the workbook resource"
       },
-      "type": "object"
-    },
-    "workbookId": {
-      "defaultValue": "[newGuid()]",
-      "metadata": {
-        "description": "The unique guid for this workbook template instance"
-      },
-      "type": "string"
+      "type": "object",
+      "defaultValue": {
+        "Environment": "Demo",
+        "Project": "Azure-Workbook-Deployment-Demo",
+        "CreatedBy": "ARM Template"
+      }
     },
     "templateCategory": {
-      "defaultValue": "Deployed Templates",
       "metadata": {
         "description": "The category for the workbook template in the gallery."
       },
-      "type": "string"
+      "type": "string",
+      "defaultValue": "Deployed Templates"
     },
-    "workbookDisplayName": {
-      "defaultValue": "Sample Dashboard WPNinjas 2025",
+    "templateName": {
       "metadata": {
-        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
+        "description": "The name for the workbook template in the gallery."
       },
-      "type": "string"
+      "type": "string",
+      "defaultValue": "A Workbook Template"
     },
     "location": {
-      "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Location for all resources."
       },
-      "type": "string"
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "workbookId": {
+      "metadata": {
+        "description": "The unique guid for this workbook template instance"
+      },
+      "type": "string",
+      "defaultValue": "[newGuid()]"
+    },
+    "workbookDisplayName": {
+      "metadata": {
+        "description": "The friendly name for the workbook template that is used in the Gallery or Saved List."
+      },
+      "type": "string",
+      "defaultValue": "Sample Dashboard WPNinjas 2025"
     }
   },
   "variables": {},
   "resources": [
     {
+      "apiVersion": "2020-11-20",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
-        "galleries": [
-          {
-            "order": 100,
-            "resourceType": "Azure Monitor",
-            "category": "[parameters('templateCategory')]",
-            "name": "[parameters('templateName')]",
-            "type": "workbook"
-          }
-        ],
         "templateData": {
           "version": "Notebook/1.0",
           "items": [
@@ -353,7 +346,7 @@
                   {
                     "type": 1,
                     "content": {
-                      "json": "<div style=\"font-family:'Segoe UI', sans-serif; background-color:#ffffff;\">\r\n  <div style=\"display: flex; justify-content: space-between; align-items: center;\">\r\n    <h2 style=\"color:#green; font-size:35px;\">Sample Dashboard WPNinjas 2025</h2>\r\n  <img src=\"https://summit.wpninjas.global/wp-content/uploads/2025/04/Global-NinjaSummit-BANNER.png\"  \r\n       alt=\"baseVISION Logo\" \r\n       style=\"background-color: #000; max-height: 200px; padding: 0px;\" />\r\n</div>\r\n\r\n  \r\n  <div style=\"display:flex; justify-content:space-between;  border-bottom:1px solid #000;\">\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🛠 Intune Diagnostics</h4>\r\n      <p><strong>Last Import:</strong> <span>{LastIntuneDiagnosticsImport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🔄 Windows Update</h4>\r\n      <p><strong>Last Report:</strong> <span>{LastWindowsUpdateReport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>⚙️ Versions</h4>\r\n      <p><strong>KQL Dashboard:</strong> <span>'1.1.1'</span></p>\r\n      <p><strong>Azure Function:</strong> <span>{AzureFunctionVersion}</span></p>\r\n    </div>\r\n  </div>\r\n</div>"
+                      "json": "<div style=\"font-family:'Segoe UI', sans-serif; background-color:#ffffff;\">\r\n  <div style=\"display: flex; justify-content: space-between; align-items: center;\">\r\n    <h2 style=\"color:#green; font-size:35px;\">Sample Dashboard WPNinjas 2025</h2>\r\n  <img src=\"https://summit.wpninjas.global/wp-content/uploads/2025/04/Global-NinjaSummit-BANNER.png\"  \r\n       alt=\"baseVISION Logo\" \r\n       style=\"background-color: #000; max-height: 200px; padding: 0px;\" />\r\n</div>\r\n\r\n  \r\n  <div style=\"display:flex; justify-content:space-between;  border-bottom:1px solid #000;\">\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🛠 Intune Diagnostics</h4>\r\n      <p><strong>Last Import:</strong> <span>{LastIntuneDiagnosticsImport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>🔄 Windows Update</h4>\r\n      <p><strong>Last Report:</strong> <span>{LastWindowsUpdateReport}</span></p>\r\n    </div>\r\n    <div style=\"flex:1; padding:10px;\">\r\n      <h4>⚙️ Versions</h4>\r\n      <p><strong>KQL Dashboard:</strong> <span>'1.1.2'</span></p>\r\n      <p><strong>Azure Function:</strong> <span>{AzureFunctionVersion}</span></p>\r\n    </div>\r\n  </div>\r\n</div>"
                     },
                     "name": "text - 3"
                   },
@@ -1023,28 +1016,35 @@
           ],
           "fromTemplateId": "ArmTemplates-/subscriptions/79e32b40-6dd1-45dc-a9b2-70cd5a110aa8/resourceGroups/rg-wb-chb-kql-kpidashboard-prod-01/providers/microsoft.insights/workbooktemplates/f144f607-a85a-4724-a1bb-24477c1294cf",
           "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
-        }
+        },
+        "galleries": [
+          {
+            "order": 100,
+            "type": "workbook",
+            "name": "[parameters('templateName')]",
+            "category": "[parameters('templateCategory')]",
+            "resourceType": "Azure Monitor"
+          }
+        ]
       },
-      "type": "microsoft.insights/workbooktemplates",
+      "name": "[parameters('workbookId')]",
       "kind": "shared",
       "location": "[parameters('location')]",
-      "tags": "[parameters('resourceTags')]",
-      "name": "[parameters('workbookId')]",
-      "apiVersion": "2020-11-20"
+      "type": "microsoft.insights/workbooktemplates"
     }
   ],
   "outputs": {
     "workbookContentHash": {
-      "type": "string",
-      "value": "E87FDCFC0BD1308D300AFE9DF5A94257A0714094FD6E406E0BE7B89B3124AD18"
+      "value": "73791FCEA2A6CF0798B679C14F8A005C04A6B0E2FFBDA8CC81445455D6331F04",
+      "type": "string"
     },
     "workbookTemplateName": {
-      "type": "string",
-      "value": "[parameters('workbookDisplayName')]"
+      "value": "[parameters('workbookDisplayName')]",
+      "type": "string"
     },
     "workbookTemplateId": {
-      "type": "string",
-      "value": "[resourceId('microsoft.insights/workbooktemplates', parameters('workbookId'))]"
+      "value": "[resourceId('microsoft.insights/workbooktemplates', parameters('workbookId'))]",
+      "type": "string"
     }
   }
 }
